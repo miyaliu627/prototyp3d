@@ -5,8 +5,11 @@ from prototyper import Prototyper  # Assuming Prototyper is defined in prototype
 
 app = Flask(__name__)
 
-@app.route('/generate_prototype', methods=['POST'])
-def generate_prototype():
+prototyper = None
+
+@app.route('/prototype', methods=['POST'])
+def prototype():
+    global prototyper
     try:
         data = request.get_json()
         user_prompt = data.get("user_prompt")
@@ -14,24 +17,20 @@ def generate_prototype():
         if not user_prompt:
             return jsonify({"error": "Missing 'user_prompt' in request"}), 400
 
-        prototyper = Prototyper(user_prompt)
+        if prototyper is None:
+            prototyper = Prototyper(user_prompt)
+        
+        prototyper.summarize_repo()
         prototyper.create_tickets()
 
         for ticket in prototyper.tickets:
-            print(f"[INFO] Working on ticket: {ticket}")
-            if not prototyper.code_path:
-                prototyper.code_path = f"./{prototyper.name}.html"
-                ticket.complete("./template.html", prototyper.code_path)
-            else:
-                ticket.complete(prototyper.code_path, prototyper.code_path)
-            
-            ticket.complete(prototyper.code_path, )
-
+            response = ticket.complete(prototyper.repo_path)
+            print(f"[INFO] internal dialogue: {response}")
             # Run debug loop on the file
             # full_debug_loop(prototyper.file_path, ticket.description)
 
         if os.path.exists(prototyper.code_path):
-            return send_file(prototyper.code_path, mimetype="text/html")
+            return jsonify({"success": "Updated repo"}), 200
         else:
             return jsonify({"error": "Generated file not found"}), 500
 
