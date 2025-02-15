@@ -19,7 +19,13 @@ def generate_prototype():
 
         for ticket in prototyper.tickets:
             print(f"[INFO] Working on ticket: {ticket}")
-            ticket.complete(prototyper.file_path)
+            if not prototyper.code_path:
+                prototyper.code_path = f"./{prototyper.name}.html"
+                ticket.complete("./template.html", prototyper.code_path)
+            else:
+                ticket.complete(prototyper.code_path, prototyper.code_path)
+            
+            ticket.complete(prototyper.code_path, )
 
             # Run debug loop on the file
             # full_debug_loop(prototyper.file_path, ticket.description)
