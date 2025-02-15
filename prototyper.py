@@ -1,72 +1,7 @@
-from llm import chatcompletion, chatcompletion_stream
-import re
-from debug_loop import full_debug_loop
+from llm import chatcompletion
+from ticket import Ticket
+# from debug_loop import full_debug_loop
 import openai
-
-
-class Ticket:
-    def __init__(self, summary, description):
-        self.summary = summary
-        self.description = description
-
-    def __repr__(self):
-        return f"Ticket(summary='{self.summary}', description='{self.description}')"
-
-    def extract_code(self, response_text):
-        """
-        Extracts the actual HTML/JS code from the response, removing extra explanations.
-        """
-        # Try to extract code inside triple backticks (```html ... ```)
-        match = re.search(
-            r"```(?:html|javascript)?\n(.*?)```", response_text, re.DOTALL
-        )
-        if match:
-            return match.group(1).strip() 
-
-        match = re.search(r"<!DOCTYPE html>.*", response_text, re.DOTALL)
-        if match:
-            return match.group(0).strip()
-
-        return response_text.strip()
-
-    def complete(self, file_path):
-        try:
-            with open(file_path, "r", encoding="utf-8") as file:
-                code = file.read()
-        except FileNotFoundError:
-            print(f"Error: The file '{file_path}' was not found.")
-            return
-        except Exception as e:
-            print(f"Error reading file: {e}")
-            return
-
-        prompt = f"""You are an expert software engineer specializing in modifying and generating Three.js code. Your task is to implement the following Jira ticket by modifying or adding code to the given HTML/JavaScript:
-
-**CURRENT CODEBASE START**
-{code}
-**CURRENT CODEBASE END**
-
-**JIRA TICKET START**
-{self.description}
-**JIRA TICKET END**
-
-**TASK INSTRUCTION START**
-Implement the ticket by modifying or adding code to the current codebase. Return as a single HTML/JavaScript file.
-"""
-        response = chatcompletion_stream(prompt, file_path)
-
-        if not response:
-            print(f"Error: No code generated for ticket '{self.summary}'.")
-            return
-
-        extracted_code = self.extract_code(response)
-
-        try:
-            with open(file_path, "w", encoding="utf-8") as file:
-                file.write(extracted_code)
-            print(f"Successfully updated {file_path} for ticket: {self.summary}")
-        except Exception as e:
-            print(f"Error writing to file: {e}")
 
 
 class Prototyper:
@@ -127,14 +62,20 @@ class Prototyper:
 # prototyper = Prototyper("Create an explorable 3D environment for my history class where you can walk through beautifully recreated ancient sites: The Great Pyramid of Giza, The Colosseum of Rome, The Great Wall of China, and Machu Picchu. When you click on the sites, it should show a description.")
 # print(prototyper.create_tickets())
 
-# client = openai.Client()
-# ticket = Ticket(
+client = openai.Client()
+# pyramid_ticket = Ticket(
 #     "'Create 3D model of The Great Pyramid of Giza'",
 #     "Develop a detailed 3D model of The Great Pyramid of Giza to be integrated into the Three.js environment. The model should accurately depict the pyramid's structure, textures, and scale in relation to the ground plane.",
 # )
-# ticket.complete(
-#     "/Users/mimiyaya/Documents/github/treehacks2025/prototyp3d/template.html"
-# )
+simple_ticket = Ticket(
+    "'Create trees",
+    "Add green trees to the Three.js environment",
+)
+
+simple_ticket.complete(
+    "/Users/mimiyaya/Documents/github/prototyp3d/template.html",
+    "/Users/mimiyaya/Documents/github/prototyp3d/pyramid.html"
+)
 # full_debug_loop(
 #     "/Users/mimiyaya/Documents/github/treehacks2025/prototyp3d/template.html",
 #     ticket.description, client,
