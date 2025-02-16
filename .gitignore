@@ -5,3 +5,5 @@ debug_loop.log
 .pyc
 __pycache__/
 venv/
+backend/.venv
+.venv/
