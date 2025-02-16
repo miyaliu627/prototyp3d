@@ -6,7 +6,7 @@ import { NextResponse } from 'next/server';
 export async function POST(request) {
   try {
     const files = await request.json();
-    const templateDir = join(process.cwd(), 'static/template/');
+    const templateDir = join(process.cwd(), 'static/product/');
     console.log(templateDir);
     
     await Promise.all(

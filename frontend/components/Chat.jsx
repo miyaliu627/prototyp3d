@@ -5,6 +5,7 @@ const Chat = ({ projectName }) => {
   const [chatMessages, setChatMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [hasCreatedPrototype, setHasCreatedPrototype] = useState(false);
   const chatContainerRef = useRef(null);
 
   const DataDisplay = ({ data, title }) => {
@@ -42,7 +43,8 @@ const Chat = ({ projectName }) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5001/prototype', {
+      const endpoint = hasCreatedPrototype ? 'iterate' : 'create';
+      const response = await fetch(`http://localhost:5001/prototype/${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -66,6 +68,10 @@ const Chat = ({ projectName }) => {
           content: `Error: ${data.error}`
         }]);
         return;
+      }
+
+      if (!hasCreatedPrototype) {
+        setHasCreatedPrototype(true);
       }
 
       data.ticket_responses?.forEach(ticketResponse => {
