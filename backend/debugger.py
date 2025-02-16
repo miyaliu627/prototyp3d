@@ -60,15 +60,15 @@ def get_fix_suggestions(html_code: str, js_code: str, css_code: str, error_info:
 
         # Extract HTML code between ***HTML STARTS*** and ***HTML ENDS***
         html_match = re.search(r'\*\*\*HTML STARTS\*\*\*\s*(.*?)\s*\*\*\*HTML ENDS\*\*\*', response_text, re.DOTALL)
-        html_code = html_match.group(1).strip() if html_match else ""
+        html_code = html_match.group(1).strip() if html_match else html_code
 
         # Extract JS code between ***JS STARTS*** and ***JS ENDS***
         js_match = re.search(r'\*\*\*JS STARTS\*\*\*\s*(.*?)\s*\*\*\*JS ENDS\*\*\*', response_text, re.DOTALL)
-        js_code = js_match.group(1).strip() if js_match else ""
+        js_code = js_match.group(1).strip() if js_match else js_code
 
         # Extract CSS code between ***CSS STARTS*** and ***CSS ENDS***
         css_match = re.search(r'\*\*\*CSS STARTS\*\*\*\s*(.*?)\s*\*\*\*CSS ENDS\*\*\*', response_text, re.DOTALL)
-        css_code = css_match.group(1).strip() if css_match else ""
+        css_code = css_match.group(1).strip() if css_match else css_code
 
         return html_code, js_code, css_code
     except Exception as e:
