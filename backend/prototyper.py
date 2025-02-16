@@ -1,8 +1,7 @@
 import shutil
 from llm import chatcompletion
 from ticket import Ticket
-from debugger import full_debug_loop
-import ticket
+from debugger import debug_with_scrapybara
 import scrapybara
 import openai
 import os
@@ -148,8 +147,8 @@ simple_ticket = Ticket(
 )
 
 
-prototyper = Prototyper("Create an explorable 3D environment for my history class where you can walk through beautifully recreated ancient sites: The Great Pyramid of Giza, The Colosseum of Rome, The Great Wall of China, and Machu Picchu. When you click on the sites, it should show a description.")
-prototyper.setup_repo()
+# prototyper = Prototyper("Create an explorable 3D environment for my history class where you can walk through beautifully recreated ancient sites: The Great Pyramid of Giza, The Colosseum of Rome, The Great Wall of China, and Machu Picchu. When you click on the sites, it should show a description.")
+# prototyper.setup_repo()
 # prototyper.summarize_repo()
 # response = simple_ticket.complete(prototyper.repo_path, prototyper.repo_summary)
 # prototyper.create_tickets()
