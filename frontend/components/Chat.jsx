@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, Database, Loader2, ArrowUp } from 'lucide-react';
 
+// Constants
 const TYPING_SPEED = 1;
 const MAX_CHUNK_SIZE = 50;
+const BACKEND_URL = process.env.NGROK_BACKEND || "http://localhost:5001";
 
 const Chat = ({ projectName }) => {
   const [chatMessages, setChatMessages] = useState([]);
@@ -14,6 +16,7 @@ const Chat = ({ projectName }) => {
   const eventSourceRef = useRef(null);
   const chatContainerRef = useRef(null);
   
+  // Typing animation
   const animateTyping = async (message, index) => {
     setIsTyping(true);
     let currentText = '';
@@ -58,6 +61,7 @@ const Chat = ({ projectName }) => {
     }
   }, [chatMessages, displayMessages.length, isTyping]);
 
+  // Display data
   const DataDisplay = ({ data, title }) => {
     if (!data) return null;
     return (
@@ -82,10 +86,11 @@ const Chat = ({ projectName }) => {
     );
   };
 
+  // Start Server-Sent Events (SSE)
   const startSSE = () => {
     if (eventSourceRef.current) return;
 
-    const source = new EventSource('http://localhost:5001/prototype/progress');
+    const source = new EventSource(`${BACKEND_URL}/prototype/progress`);
 
     source.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -103,6 +108,7 @@ const Chat = ({ projectName }) => {
     eventSourceRef.current = source;
   };
 
+  // Stop SSE
   const stopSSE = () => {
     if (eventSourceRef.current) {
       eventSourceRef.current.close();
@@ -110,6 +116,7 @@ const Chat = ({ projectName }) => {
     }
   };
 
+  // Handle sending messages
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
 
@@ -124,7 +131,7 @@ const Chat = ({ projectName }) => {
       startSSE();
 
       const endpoint = hasCreatedPrototype ? 'iterate' : 'create';
-      const response = await fetch(`http://localhost:5001/prototype/${endpoint}`, {
+      const response = await fetch(`${BACKEND_URL}/prototype/${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -154,12 +161,10 @@ const Chat = ({ projectName }) => {
         return;
       }
 
-      
-
     } catch (error) {
       setChatMessages(prev => [...prev, {
         role: 'assistant',
-        content: `Error: ${error.message}. Make sure the backend server is running on port 5001.`
+        content: `Error: ${error.message}. Make sure the backend server is running on port 5001 or ngrok is set correctly.`
       }]);
     } finally {
       stopSSE();
@@ -185,19 +190,8 @@ const Chat = ({ projectName }) => {
                 ? 'bg-gradient-to-r from-purple-500/90 to-purple-600/90 ml-auto max-w-[80%]' 
                 : 'bg-gradient-to-r from-slate-700/90 to-slate-700/70 max-w-[80%]'
             }`}>
-              <p className="text-white text-sm">
-                {message.content}
-                {message.role === 'assistant' && isTyping && index === displayMessages.length - 1 && (
-                  <span className="inline-block w-1 h-4 ml-1 bg-purple-400 animate-pulse" />
-                )}
-              </p>
+              <p className="text-white text-sm">{message.content}</p>
             </div>
-            {message.ticketData && (
-              <>
-                <DataDisplay data={message.ticketData.initial} title="Initial Data" />
-                <DataDisplay data={message.ticketData.final} title="Final Data" />
-              </>
-            )}
           </div>
         ))}
       </div>
@@ -209,20 +203,11 @@ const Chat = ({ projectName }) => {
           onChange={(e) => setInputMessage(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && !isLoading && !isTyping && handleSendMessage()}
           placeholder="Describe your 3D model requirements..."
-          disabled={isTyping}
-          className="flex-1 bg-slate-900 border border-slate-700/50 rounded-lg px-3 py-1.5 text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-purple-500/50 disabled:opacity-50"
+          className="flex-1 bg-slate-900 border border-slate-700/50 rounded-lg px-3 py-1.5 text-white text-sm"
         />
 
-        <button 
-          onClick={handleSendMessage}
-          disabled={isLoading || isTyping}
-          className="p-2 rounded-lg bg-purple-600 hover:bg-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-        >
-          {isLoading ? (
-            <Loader2 size={16} className="animate-spin text-white" />
-          ) : (
-            <ArrowUp size={16} className="text-white" />
-          )}
+        <button onClick={handleSendMessage} disabled={isLoading || isTyping} className="p-2 bg-purple-600 rounded-lg">
+          {isLoading ? <Loader2 size={16} className="animate-spin text-white" /> : <ArrowUp size={16} className="text-white" />}
         </button>
       </div>
     </div>
@@ -230,3 +215,4 @@ const Chat = ({ projectName }) => {
 };
 
 export default Chat;
+

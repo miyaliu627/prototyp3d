@@ -1,6 +1,7 @@
 import json
 from flask import Flask, request, jsonify, Response, stream_with_context
 from flask_cors import CORS
+from dotenv import load_dotenv
 from enum import Enum
 import os
 try:
@@ -12,9 +13,14 @@ except:
     
 import scrapybara
 
-app = Flask(__name__)
-CORS(app)
+load_dotenv(dotenv_path="../.env")
 
+BACKEND_URL = os.getenv("NGROK_BACKEND", "http://localhost:5001")  # ✅ Use correct env var
+print(f"Using BACKEND_URL: {BACKEND_URL}")
+
+app = Flask(__name__)
+
+CORS(app, resources={r"/*": {"origins": "*"}})
 prototyper = None
 progress_messages = []
 
