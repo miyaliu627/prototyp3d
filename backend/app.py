@@ -3,8 +3,13 @@ from flask import Flask, request, jsonify, Response, stream_with_context
 from flask_cors import CORS
 from enum import Enum
 import os
-from .prototyper import Prototyper
-from .debugger import debug_with_scrapybara
+try:
+    from .prototyper import Prototyper
+    from .debugger import debug_with_scrapybara
+except:
+    from prototyper import Prototyper
+    from debugger import debug_with_scrapybara
+    
 import scrapybara
 
 app = Flask(__name__)
