@@ -1,3 +1,4 @@
+// app/Header.jsx
 'use client';
 import React, { useState } from 'react';
 import Image from 'next/image';
@@ -39,9 +40,10 @@ export default function Header({ onDownload, projectName, setProjectName }) {
                 onChange={(e) => setTempName(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Project name (optional)..."
-                className="w-64 bg-gradient-to-br from-slate-900/90 to-slate-900/70 border border-slate-700/50 rounded-lg px-3 py-1.5 text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                className="w-64 bg-slate-800 border border-slate-600 rounded-lg px-4 py-2 text-white text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 autoFocus
-              />
+              />            
+
             </form>
           ) : (
             <div className="flex items-center gap-2">

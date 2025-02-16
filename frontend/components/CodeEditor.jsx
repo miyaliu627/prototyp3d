@@ -79,11 +79,10 @@ export default function CodeEditor({
           <h2 className="text-purple-400 font-medium text-sm font-sans font-bold">Code Editor</h2>
 
         </div>
-        
-        {/* Save notifications */}
+
         {lastSaved && (
           <div className="absolute left-1/2 -translate-x-1/2 px-3 py-1 bg-slate-700/50 text-slate-300 text-xs rounded-full transition-opacity">
-            {showAutoSave ? 'Auto-saved to instance' : 'Saved to instance'}
+            {showAutoSave ? 'Auto-saved to remote instance' : 'Saved to remote instance'}
           </div>
         )}
 
@@ -121,16 +120,18 @@ export default function CodeEditor({
             onChange={(e) => setFiles({ ...files, [currentFile]: e.target.value })}
             onKeyDown={handleKeyDown}
             onScroll={handleScroll}
-            className="absolute inset-0 w-full h-full bg-transparent font-mono text-sm text-transparent caret-white p-3 resize-none overflow-auto outline-none whitespace-pre-wrap"
-            spellCheck="false"
+            className="absolute inset-0 w-full h-full bg-transparent font-mono text-xs text-transparent caret-white p-3 resize-none overflow-auto outline-none whitespace-pre-wrap"
+            spellCheck="false"          
           />
           <pre
             ref={preRef}
-            className="absolute inset-0 w-full h-full pointer-events-none bg-gradient-to-br from-slate-900/90 to-slate-900/75 rounded-lg p-3 font-mono text-sm text-slate-300 overflow-auto whitespace-pre-wrap"
+            className="absolute inset-0 w-full h-full pointer-events-none bg-gradient-to-br from-slate-900/90 to-slate-900/75 rounded-lg p-3 font-mono text-xs text-slate-300 overflow-auto whitespace-pre-wrap"
             dangerouslySetInnerHTML={{ __html: highlightedContent }}
-          />
+          />        
+
         </div>
       </div>
     </div>
   );
 }
+
