@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { MessageSquare, Database, Loader2 } from 'lucide-react';
+import { MessageSquare, Database, Loader2, ArrowUp } from 'lucide-react';
 
 const Chat = ({ projectName }) => {
   const [chatMessages, setChatMessages] = useState([]);
@@ -172,18 +172,6 @@ const Chat = ({ projectName }) => {
             }`}>
               <p className="text-white text-sm">{message.content}</p>
             </div>
-            {message.ticketData && (
-              <>
-                <DataDisplay 
-                  data={message.ticketData.initial} 
-                  title="Initial Ticket Data" 
-                />
-                <DataDisplay 
-                  data={message.ticketData.final} 
-                  title="Final Ticket Data" 
-                />
-              </>
-            )}
           </div>
         ))}
       </div>
@@ -195,20 +183,18 @@ const Chat = ({ projectName }) => {
           onChange={(e) => setInputMessage(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && !isLoading && handleSendMessage()}
           placeholder="Describe your 3D model requirements..."
-          className="flex-1 bg-gradient-to-br from-slate-900/90 to-slate-900/70 border border-slate-700/50 rounded-lg px-3 py-1.5 text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+          className="flex-1 bg-slate-900 border border-slate-700/50 rounded-lg px-3 py-1.5 text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
         />
+
         <button 
           onClick={handleSendMessage}
           disabled={isLoading}
-          className="px-4 py-1.5 rounded-lg bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:from-purple-600 hover:to-purple-700 transition text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          className="p-2 rounded-lg bg-purple-600 hover:bg-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
         >
           {isLoading ? (
-            <>
-              <Loader2 size={14} className="animate-spin" />
-              Processing...
-            </>
+            <Loader2 size={16} className="animate-spin text-white" />
           ) : (
-            'Send'
+            <ArrowUp size={16} className="text-white" />
           )}
         </button>
       </div>
@@ -217,3 +203,4 @@ const Chat = ({ projectName }) => {
 };
 
 export default Chat;
+
