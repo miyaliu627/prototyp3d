@@ -101,6 +101,10 @@ const Chat = ({ projectName }) => {
         })
       });
 
+      if (!hasCreatedPrototype) {
+        setHasCreatedPrototype(true);
+      }
+      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -115,9 +119,7 @@ const Chat = ({ projectName }) => {
         return;
       }
 
-      if (!hasCreatedPrototype) {
-        setHasCreatedPrototype(true);
-      }
+      
 
       // data.ticket_responses?.forEach(ticketResponse => {
       //   setChatMessages(prev => [...prev, {

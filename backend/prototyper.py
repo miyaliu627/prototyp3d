@@ -82,7 +82,7 @@ class Prototyper:
             Ticket(ticket["summary"], ticket["description"])
             for ticket in response["tickets"]
         ]
-        print(f"INFO] Created {len(tickets)} tickets.")
+        print(f"[INFO] Created {len(tickets)} tickets.")
         self.tickets = tickets[:5] #first 5 tickets only for now
 
     def summarize_repo(self):
@@ -140,11 +140,10 @@ class Prototyper:
         self.repo_summary = response["summary"]
 
 ### ==================== TEST ==================== ###
-simple_ticket = Ticket(
-    "'Create trees",
-    "Add green trees to the Three.js environment",
-)
-
+# simple_ticket = Ticket(
+#     "'Create trees",
+#     "Add green trees to the Three.js environment",
+# )
 
 # prototyper = Prototyper("Create an explorable 3D environment for my history class where you can walk through beautifully recreated ancient sites: The Great Pyramid of Giza, The Colosseum of Rome, The Great Wall of China, and Machu Picchu. When you click on the sites, it should show a description.")
 # prototyper.setup_repo()
