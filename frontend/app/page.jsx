@@ -21,6 +21,7 @@ export default function Home() {
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(true);
   const [showSaveNotification, setShowSaveNotification] = useState(false);
   const [isAutoSave, setIsAutoSave] = useState(false);
+  const [projectName, setProjectName] = useState('');
 
   useEffect(() => {
     async function loadFiles() {
@@ -89,7 +90,6 @@ export default function Home() {
 
       setLastSaved(new Date());
       setShowSaveNotification(true);
-      renderPreview();
 
       setTimeout(() => {
         setShowSaveNotification(false);
@@ -195,6 +195,18 @@ export default function Home() {
 
   useEffect(() => {
     const handleKeyPress = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        renderPreview();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [renderPreview]);
+
+  useEffect(() => {
+    const handleKeyPress = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault();
         saveFiles();
@@ -209,8 +221,8 @@ export default function Home() {
     <div className="h-screen w-full bg-slate-900 flex flex-col">
       <Header 
         onDownload={handleDownload} 
-        lastSaved={showSaveNotification}
-        showAutoSave={isAutoSave}
+        projectName={projectName}
+        setProjectName={setProjectName}
       />      
       <main className="flex-1 max-w-[95%] w-full mx-auto px-2 flex flex-col">
         <div className="flex-1 grid grid-cols-2 gap-3 h-[65vh]">
@@ -222,6 +234,8 @@ export default function Home() {
             isNavExpanded={isNavExpanded}
             setIsNavExpanded={setIsNavExpanded}
             onRenderPreview={renderPreview}
+            lastSaved={showSaveNotification}
+            showAutoSave={isAutoSave}
           />
 
           <Preview previewRef={previewRef} />

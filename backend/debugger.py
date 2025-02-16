@@ -18,7 +18,6 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s: %(message)s",
 )
 
-
 def get_fix_suggestions(html_code: str, js_code: str, css_code: str, error_info: str, model_name: str = "o3-mini") -> str:
     """Uses OpenAI API to suggest fixes for ESLint or image similarity issues."""
     try:
@@ -178,14 +177,10 @@ def debug_with_scrapybara(repo_path, ticket_description, scrapybara_client, inst
         except Exception as e:
             logging.error(f"Error reading file or responding: {e}")
 
-
-
 # if __name__ == "__main__":
 #     html_file = "prototype.html"
 #     original_prompt = "A futuristic cityscape with neon lights and a hovering car."
 #     full_debug_loop(html_file, original_prompt)
-
-
 
 # client = Scrapybara()
 # instance = client.start_ubuntu(timeout_hours=0.2)

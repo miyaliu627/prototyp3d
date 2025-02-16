@@ -1,10 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { MessageSquare, Database, Loader2 } from 'lucide-react';
 
-const Chat = () => {
+const Chat = ({ projectName }) => {
   const [chatMessages, setChatMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
-  const [projectName, setProjectName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [hasCreatedPrototype, setHasCreatedPrototype] = useState(false);
   const chatContainerRef = useRef(null);
@@ -36,7 +35,6 @@ const Chat = () => {
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
 
-    // Add user message to chat
     setChatMessages(prev => [...prev, {
       role: 'user',
       content: inputMessage
@@ -76,7 +74,6 @@ const Chat = () => {
         setHasCreatedPrototype(true);
       }
 
-      // Add responses for each ticket
       data.ticket_responses?.forEach(ticketResponse => {
         setChatMessages(prev => [...prev, {
           role: 'assistant',
@@ -88,7 +85,6 @@ const Chat = () => {
         }]);
       });
 
-      // Add success message if no tickets were returned
       if (!data.ticket_responses?.length) {
         setChatMessages(prev => [...prev, {
           role: 'assistant',
@@ -105,7 +101,6 @@ const Chat = () => {
       setIsLoading(false);
       setInputMessage('');
       
-      // Scroll to bottom after messages are added
       if (chatContainerRef.current) {
         chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
       }
@@ -116,8 +111,8 @@ const Chat = () => {
     <div className="mt-3 bg-gradient-to-br from-slate-800/50 to-slate-800/30 backdrop-blur-sm rounded-lg p-3 flex flex-col h-[28vh]">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <MessageSquare size={18} className="text-slate-400" />
-          <h2 className="text-white font-medium text-sm">AI Assistant</h2>
+          <MessageSquare size={18} className="text-purple-400" />
+          <h2 className="text-purple-400 font-medium text-sm font-sans font-bold">AI Assistant</h2>
         </div>
       </div>
       
@@ -147,38 +142,29 @@ const Chat = () => {
         ))}
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex gap-2">
         <input
           type="text"
-          value={projectName}
-          onChange={(e) => setProjectName(e.target.value)}
-          placeholder="Project name (optional)..."
-          className="bg-gradient-to-br from-slate-900/90 to-slate-900/70 border border-slate-700/50 rounded-lg px-3 py-1.5 text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+          value={inputMessage}
+          onChange={(e) => setInputMessage(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && !isLoading && handleSendMessage()}
+          placeholder="Describe your 3D model requirements..."
+          className="flex-1 bg-gradient-to-br from-slate-900/90 to-slate-900/70 border border-slate-700/50 rounded-lg px-3 py-1.5 text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
         />
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && !isLoading && handleSendMessage()}
-            placeholder="Describe your 3D model requirements..."
-            className="flex-1 bg-gradient-to-br from-slate-900/90 to-slate-900/70 border border-slate-700/50 rounded-lg px-3 py-1.5 text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
-          />
-          <button 
-            onClick={handleSendMessage}
-            disabled={isLoading}
-            className="px-4 py-1.5 rounded-lg bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:from-purple-600 hover:to-purple-700 transition text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 size={14} className="animate-spin" />
-                Processing...
-              </>
-            ) : (
-              'Send'
-            )}
-          </button>
-        </div>
+        <button 
+          onClick={handleSendMessage}
+          disabled={isLoading}
+          className="px-4 py-1.5 rounded-lg bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:from-purple-600 hover:to-purple-700 transition text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+        >
+          {isLoading ? (
+            <>
+              <Loader2 size={14} className="animate-spin" />
+              Processing...
+            </>
+          ) : (
+            'Send'
+          )}
+        </button>
       </div>
     </div>
   );
