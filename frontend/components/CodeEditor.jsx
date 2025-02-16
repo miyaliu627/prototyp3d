@@ -1,4 +1,3 @@
-// components/CodeEditor.jsx
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import { Terminal, Play, Copy, CheckCheck } from 'lucide-react';
@@ -38,17 +37,24 @@ export default function CodeEditor({
   const preRef = useRef(null);
 
   useEffect(() => {
-    const language = getLanguageFromFile(currentFile);
-    const html = Prism.highlight(files[currentFile], Prism.languages[language], language);
-    setHighlightedContent(html);
+    if (files && currentFile && files[currentFile]) {
+      const language = getLanguageFromFile(currentFile);
+      const content = files[currentFile] || '';
+      const html = Prism.highlight(content, Prism.languages[language], language);
+      setHighlightedContent(html);
+    } else {
+      setHighlightedContent('');
+    }
   }, [files, currentFile]);
 
   const handleCopy = async () => {
     try {
-      const textToCopy = files[currentFile];
-      await navigator.clipboard.writeText(textToCopy);
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
+      if (files && currentFile) {
+        const textToCopy = files[currentFile] || '';
+        await navigator.clipboard.writeText(textToCopy);
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+      }
     } catch (err) {
       console.error('Failed to copy text:', err);
     }
@@ -97,7 +103,7 @@ export default function CodeEditor({
         <div className="relative h-full">
           <textarea
             ref={textareaRef}
-            value={files[currentFile]}
+            value={files?.[currentFile] || ''}
             onChange={(e) => setFiles({ ...files, [currentFile]: e.target.value })}
             onKeyDown={handleKeyDown}
             onScroll={handleScroll}
