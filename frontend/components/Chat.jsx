@@ -1,13 +1,62 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, Database, Loader2, ArrowUp } from 'lucide-react';
+
+const TYPING_SPEED = 1;
+const MAX_CHUNK_SIZE = 50;
 
 const Chat = ({ projectName }) => {
   const [chatMessages, setChatMessages] = useState([]);
+  const [displayMessages, setDisplayMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const [hasCreatedPrototype, setHasCreatedPrototype] = useState(false);
   const eventSourceRef = useRef(null);
   const chatContainerRef = useRef(null);
+  
+  const animateTyping = async (message, index) => {
+    setIsTyping(true);
+    let currentText = '';
+    const chunks = [];
+    
+    for (let i = 0; i < message.content.length; i += MAX_CHUNK_SIZE) {
+      chunks.push(message.content.slice(i, i + MAX_CHUNK_SIZE));
+    }
+
+    setDisplayMessages(prev => [
+      ...prev.slice(0, index),
+      { ...message, content: '' },
+      ...prev.slice(index + 1)
+    ]);
+
+    for (const chunk of chunks) {
+      currentText += chunk;
+      setDisplayMessages(prev => [
+        ...prev.slice(0, index),
+        { ...message, content: currentText },
+        ...prev.slice(index + 1)
+      ]);
+
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      }
+
+      await new Promise(resolve => setTimeout(resolve, TYPING_SPEED * chunk.length));
+    }
+    setIsTyping(false);
+  };
+
+  useEffect(() => {
+    if (chatMessages.length > displayMessages.length && !isTyping) {
+      const newMessage = chatMessages[chatMessages.length - 1];
+      if (newMessage.role === 'assistant') {
+        setDisplayMessages(prev => [...prev, { ...newMessage, content: '' }]);
+        animateTyping(newMessage, displayMessages.length);
+      } else {
+        setDisplayMessages(prev => [...prev, newMessage]);
+      }
+    }
+  }, [chatMessages, displayMessages.length, isTyping]);
 
   const DataDisplay = ({ data, title }) => {
     if (!data) return null;
@@ -34,34 +83,20 @@ const Chat = ({ projectName }) => {
   };
 
   const startSSE = () => {
-    // If we already have an EventSource, don't create a new one.
     if (eventSourceRef.current) return;
 
     const source = new EventSource('http://localhost:5001/prototype/progress');
 
     source.onmessage = (event) => {
-      // event.data is a string; parse it as JSON.
       const data = JSON.parse(event.data);
-      // Example data shape: { type, message, details }
-
-      // Append as an 'assistant' message
-      setChatMessages(prev => [
-        ...prev,
-        {
-          role: 'assistant',
-          content: data.message,
-        }
-      ]);
-
-      // Scroll to bottom
-      if (chatContainerRef.current) {
-        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-      }
+      setChatMessages(prev => [...prev, {
+        role: 'assistant',
+        content: data.message,
+      }]);
     };
 
     source.onerror = (err) => {
       console.error('EventSource error:', err);
-      // Optionally close on error to prevent reconnect loops
       source.close();
     };
 
@@ -119,24 +154,6 @@ const Chat = ({ projectName }) => {
         setHasCreatedPrototype(true);
       }
 
-      // data.ticket_responses?.forEach(ticketResponse => {
-      //   setChatMessages(prev => [...prev, {
-      //     role: 'assistant',
-      //     content: ticketResponse.message,
-      //     ticketData: {
-      //       initial: ticketResponse.initial_data,
-      //       final: ticketResponse.final_data
-      //     }
-      //   }]);
-      // });
-
-      // if (!data.ticket_responses?.length) {
-      //   setChatMessages(prev => [...prev, {
-      //     role: 'assistant',
-      //     content: `Success: ${data.success}. Repository path: ${data.repo_path}`
-      //   }]);
-      // }
-
     } catch (error) {
       setChatMessages(prev => [...prev, {
         role: 'assistant',
@@ -146,10 +163,6 @@ const Chat = ({ projectName }) => {
       stopSSE();
       setIsLoading(false);
       setInputMessage('');
-      
-      if (chatContainerRef.current) {
-        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-      }
     }
   };
 
@@ -163,15 +176,26 @@ const Chat = ({ projectName }) => {
       </div>
       
       <div ref={chatContainerRef} className="flex-1 overflow-y-auto mb-3 space-y-3 pr-2">
-        {chatMessages.map((message, index) => (
+        {displayMessages.map((message, index) => (
           <div key={index}>
             <div className={`p-2.5 rounded-lg ${
               message.role === 'user' 
                 ? 'bg-gradient-to-r from-purple-500/90 to-purple-600/90 ml-auto max-w-[80%]' 
                 : 'bg-gradient-to-r from-slate-700/90 to-slate-700/70 max-w-[80%]'
             }`}>
-              <p className="text-white text-sm">{message.content}</p>
+              <p className="text-white text-sm">
+                {message.content}
+                {message.role === 'assistant' && isTyping && index === displayMessages.length - 1 && (
+                  <span className="inline-block w-1 h-4 ml-1 bg-purple-400 animate-pulse" />
+                )}
+              </p>
             </div>
+            {message.ticketData && (
+              <>
+                <DataDisplay data={message.ticketData.initial} title="Initial Data" />
+                <DataDisplay data={message.ticketData.final} title="Final Data" />
+              </>
+            )}
           </div>
         ))}
       </div>
@@ -181,14 +205,15 @@ const Chat = ({ projectName }) => {
           type="text"
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && !isLoading && handleSendMessage()}
+          onKeyPress={(e) => e.key === 'Enter' && !isLoading && !isTyping && handleSendMessage()}
           placeholder="Describe your 3D model requirements..."
-          className="flex-1 bg-slate-900 border border-slate-700/50 rounded-lg px-3 py-1.5 text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+          disabled={isTyping}
+          className="flex-1 bg-slate-900 border border-slate-700/50 rounded-lg px-3 py-1.5 text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-purple-500/50 disabled:opacity-50"
         />
 
         <button 
           onClick={handleSendMessage}
-          disabled={isLoading}
+          disabled={isLoading || isTyping}
           className="p-2 rounded-lg bg-purple-600 hover:bg-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
         >
           {isLoading ? (
@@ -203,4 +228,3 @@ const Chat = ({ projectName }) => {
 };
 
 export default Chat;
-

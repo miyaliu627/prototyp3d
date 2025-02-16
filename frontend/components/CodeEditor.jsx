@@ -1,12 +1,15 @@
-// components/CodeEditor.jsx
+// CodeEditor.jsx
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import { Terminal, Play, Copy, CheckCheck } from 'lucide-react';
-import FileNavigation from './FileNavigation.jsx';
+import FileNavigation from './FileNavigation';
 import Prism from 'prismjs';
 import 'prismjs/themes/prism-tomorrow.css';
 import 'prismjs/components/prism-css';
 import 'prismjs/components/prism-javascript';
+
+const TYPING_SPEED = 1;
+const MAX_CHUNK_SIZE = 50;
 
 const getLanguageFromFile = (filename) => {
   const ext = filename.split('.').pop();
@@ -37,19 +40,84 @@ export default function CodeEditor({
 }) {
   const [isCopied, setIsCopied] = useState(false);
   const [highlightedContent, setHighlightedContent] = useState('');
+  const [displayedContent, setDisplayedContent] = useState('');
+  const [modifiedFiles, setModifiedFiles] = useState(new Set());
+  const [isAnimating, setIsAnimating] = useState(false);
+  const previousFilesRef = useRef({});
+  const currentContentRef = useRef('');
   const textareaRef = useRef(null);
   const preRef = useRef(null);
 
   useEffect(() => {
-    if (files && currentFile && files[currentFile]) {
-      const language = getLanguageFromFile(currentFile);
+    if (!files || !previousFilesRef.current) return;
+
+    Object.entries(files).forEach(([filename, content]) => {
+      if (content !== previousFilesRef.current[filename]) {
+        if (filename === currentFile) {
+          animateCodeTyping(content);
+        } else {
+          setModifiedFiles(prev => new Set([...prev, filename]));
+        }
+      }
+    });
+
+    previousFilesRef.current = { ...files };
+  }, [files]);
+
+  useEffect(() => {
+    if (files && currentFile) {
       const content = files[currentFile] || '';
-      const html = Prism.highlight(content, Prism.languages[language], language);
-      setHighlightedContent(html);
-    } else {
-      setHighlightedContent('');
+      currentContentRef.current = content;
+      
+      if (!isAnimating) {
+        setDisplayedContent(content);
+        const language = getLanguageFromFile(currentFile);
+        const html = Prism.highlight(content, Prism.languages[language], language);
+        setHighlightedContent(html);
+      }
     }
-  }, [files, currentFile]);
+  }, [currentFile, files, isAnimating]);
+
+  const animateCodeTyping = async (newContent) => {
+    if (isAnimating) return;
+    setIsAnimating(true);
+
+    let currentText = '';
+    const chunks = [];
+    for (let i = 0; i < newContent.length; i += MAX_CHUNK_SIZE) {
+      chunks.push(newContent.slice(i, i + MAX_CHUNK_SIZE));
+    }
+
+    for (const chunk of chunks) {
+      if (currentContentRef.current !== newContent) {
+        break;
+      }
+
+      currentText += chunk;
+      setDisplayedContent(currentText);
+      
+      const language = getLanguageFromFile(currentFile);
+      const html = Prism.highlight(currentText, Prism.languages[language], language);
+      setHighlightedContent(html);
+
+      if (preRef.current) {
+        preRef.current.scrollTop = preRef.current.scrollHeight;
+      }
+
+      await new Promise(resolve => setTimeout(resolve, TYPING_SPEED * chunk.length));
+    }
+
+    setIsAnimating(false);
+  };
+
+  const handleFileSelect = (filename) => {
+    setIsAnimating(false);
+    setModifiedFiles(prev => {
+      const next = new Set(prev);
+      next.delete(filename);
+      return next;
+    });
+  };
 
   const handleCopy = async () => {
     try {
@@ -77,7 +145,6 @@ export default function CodeEditor({
         <div className="flex items-center gap-2">
           <Terminal size={18} className="text-purple-400" />
           <h2 className="text-purple-400 font-medium text-sm font-sans font-bold">Code Editor</h2>
-
         </div>
 
         {lastSaved && (
@@ -93,6 +160,7 @@ export default function CodeEditor({
           <Play size={14} className="text-green-400" />
         </button>
       </div>     
+
       <FileNavigation
         files={files}
         currentFile={currentFile}
@@ -100,7 +168,10 @@ export default function CodeEditor({
         isNavExpanded={isNavExpanded}
         setIsNavExpanded={setIsNavExpanded}
         projectName={projectName}
+        modifiedFiles={modifiedFiles}
+        onFileSelect={handleFileSelect}
       />
+
       <div className="relative flex-1 overflow-hidden">
         <button
           onClick={handleCopy}
@@ -127,8 +198,7 @@ export default function CodeEditor({
             ref={preRef}
             className="absolute inset-0 w-full h-full pointer-events-none bg-gradient-to-br from-slate-900/90 to-slate-900/75 rounded-lg p-3 font-mono text-xs text-slate-300 overflow-auto whitespace-pre-wrap"
             dangerouslySetInnerHTML={{ __html: highlightedContent }}
-          />        
-
+          />
         </div>
       </div>
     </div>
