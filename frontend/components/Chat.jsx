@@ -6,6 +6,7 @@ const Chat = ({ projectName }) => {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [hasCreatedPrototype, setHasCreatedPrototype] = useState(false);
+  const eventSourceRef = useRef(null);
   const chatContainerRef = useRef(null);
 
   const DataDisplay = ({ data, title }) => {
@@ -32,6 +33,48 @@ const Chat = ({ projectName }) => {
     );
   };
 
+  const startSSE = () => {
+    // If we already have an EventSource, don't create a new one.
+    if (eventSourceRef.current) return;
+
+    const source = new EventSource('http://localhost:5001/prototype/progress');
+
+    source.onmessage = (event) => {
+      // event.data is a string; parse it as JSON.
+      const data = JSON.parse(event.data);
+      // Example data shape: { type, message, details }
+
+      // Append as an 'assistant' message
+      setChatMessages(prev => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: data.message,
+        }
+      ]);
+
+      // Scroll to bottom
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      }
+    };
+
+    source.onerror = (err) => {
+      console.error('EventSource error:', err);
+      // Optionally close on error to prevent reconnect loops
+      source.close();
+    };
+
+    eventSourceRef.current = source;
+  };
+
+  const stopSSE = () => {
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+      eventSourceRef.current = null;
+    }
+  };
+
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
 
@@ -43,6 +86,8 @@ const Chat = ({ projectName }) => {
     setIsLoading(true);
 
     try {
+      startSSE();
+
       const endpoint = hasCreatedPrototype ? 'iterate' : 'create';
       const response = await fetch(`http://localhost:5001/prototype/${endpoint}`, {
         method: 'POST',
@@ -74,23 +119,23 @@ const Chat = ({ projectName }) => {
         setHasCreatedPrototype(true);
       }
 
-      data.ticket_responses?.forEach(ticketResponse => {
-        setChatMessages(prev => [...prev, {
-          role: 'assistant',
-          content: ticketResponse.message,
-          ticketData: {
-            initial: ticketResponse.initial_data,
-            final: ticketResponse.final_data
-          }
-        }]);
-      });
+      // data.ticket_responses?.forEach(ticketResponse => {
+      //   setChatMessages(prev => [...prev, {
+      //     role: 'assistant',
+      //     content: ticketResponse.message,
+      //     ticketData: {
+      //       initial: ticketResponse.initial_data,
+      //       final: ticketResponse.final_data
+      //     }
+      //   }]);
+      // });
 
-      if (!data.ticket_responses?.length) {
-        setChatMessages(prev => [...prev, {
-          role: 'assistant',
-          content: `Success: ${data.success}. Repository path: ${data.repo_path}`
-        }]);
-      }
+      // if (!data.ticket_responses?.length) {
+      //   setChatMessages(prev => [...prev, {
+      //     role: 'assistant',
+      //     content: `Success: ${data.success}. Repository path: ${data.repo_path}`
+      //   }]);
+      // }
 
     } catch (error) {
       setChatMessages(prev => [...prev, {
@@ -98,6 +143,7 @@ const Chat = ({ projectName }) => {
         content: `Error: ${error.message}. Make sure the backend server is running on port 5001.`
       }]);
     } finally {
+      stopSSE();
       setIsLoading(false);
       setInputMessage('');
       

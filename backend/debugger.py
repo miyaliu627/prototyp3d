@@ -170,12 +170,14 @@ def debug_with_scrapybara(repo_path, ticket_description, scrapybara_client, inst
                 iterations+=1  
             else:
                 logging.error("No fix suggestions received from image debug loop.")
+                print("No fix suggestions received from image debug loop.")
                 return None
         except FileNotFoundError:
             print("Error: The file was not found.")
             raise FileNotFoundError
         except Exception as e:
             logging.error(f"Error reading file or responding: {e}")
+            print(f"Error reading file or responding: {e}")
             return "Failed"
 
 # if __name__ == "__main__":
