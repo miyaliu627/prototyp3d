@@ -236,6 +236,7 @@ export default function Home() {
             onRenderPreview={renderPreview}
             lastSaved={showSaveNotification}
             showAutoSave={isAutoSave}
+            projectName={projectName}
           />
 
           <Preview previewRef={previewRef} />

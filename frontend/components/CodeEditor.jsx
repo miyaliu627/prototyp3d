@@ -32,7 +32,8 @@ export default function CodeEditor({
   onRenderPreview,
   handleKeyDown,
   lastSaved,
-  showAutoSave
+  showAutoSave,
+  projectName
 }) {
   const [isCopied, setIsCopied] = useState(false);
   const [highlightedContent, setHighlightedContent] = useState('');
@@ -99,6 +100,7 @@ export default function CodeEditor({
         setCurrentFile={setCurrentFile}
         isNavExpanded={isNavExpanded}
         setIsNavExpanded={setIsNavExpanded}
+        projectName={projectName}
       />
       <div className="relative flex-1 overflow-hidden">
         <button
