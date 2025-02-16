@@ -36,7 +36,7 @@ const Chat = ({ projectName }) => {
   const startSSE = () => {
     if (eventSourceRef.current) return;
 
-    const source = new EventSource('http://localhost:5001/prototype/progress');
+    const source = new EventSource(`${BACKEND_URL}/prototype/progress`);
 
     source.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -82,7 +82,7 @@ const Chat = ({ projectName }) => {
       startSSE();
 
       const endpoint = hasCreatedPrototype ? 'iterate' : 'create';
-      const response = await fetch(`http://localhost:5001/prototype/${endpoint}`, {
+      const response = await fetch(`${BACKEND_URL}/prototype/${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -114,7 +114,7 @@ const Chat = ({ projectName }) => {
     } catch (error) {
       setChatMessages(prev => [...prev, {
         role: 'assistant',
-        content: `Error: ${error.message}. Make sure the backend server is running on port 5001.`
+        content: `Error: ${error.message}. Make sure the backend server is running on port 5001 or ngrok is set correctly.`
       }]);
     } finally {
       stopSSE();
@@ -177,3 +177,4 @@ const Chat = ({ projectName }) => {
 };
 
 export default Chat;
+
