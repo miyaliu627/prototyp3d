@@ -1,7 +1,7 @@
 import shutil
-from llm import chatcompletion
-from ticket import Ticket
-from debugger import debug_with_scrapybara
+from .llm import chatcompletion
+from .ticket import Ticket
+from .debugger import debug_with_scrapybara
 import scrapybara
 import openai
 import os
