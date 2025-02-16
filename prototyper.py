@@ -81,7 +81,7 @@ class Prototyper:
             Ticket(ticket["summary"], ticket["description"])
             for ticket in response["tickets"]
         ]
-        self.tickets = tickets
+        self.tickets = tickets[:5] #first 5 tickets only for now
 
     def summarize_repo(self):
         repo_code = []
