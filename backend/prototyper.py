@@ -9,14 +9,16 @@ import uuid
 
 
 class Prototyper:
-    def __init__(self, user_prompt, name=None):
+    def __init__(self, user_prompt, scrapybara_client, instance, name=None):
         self.name = name or str(uuid.uuid4())
         self.user_prompt = user_prompt
         self.tickets = []
         self.repo_summary = None
         self.repo_path = os.path.join("../frontend/static/product")
         self.llm_client = openai.Client()
-        self.scrapybara_client = scrapybara.Scrapybara()
+        self.scrapybara_client = scrapybara_client
+        self.scrapybara_instance = instance
+
 
     def setup_repo(self):
         """

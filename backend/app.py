@@ -3,7 +3,8 @@ from flask_cors import CORS
 from enum import Enum
 import os
 from prototyper import Prototyper
-# from debug_tool import full_debug_loop
+from debugger import debug_with_scrapybara
+import scrapybara
 
 app = Flask(__name__)
 CORS(app)
@@ -22,6 +23,9 @@ class MessageTypes(Enum):
 def prototype():
     global prototyper
     try:
+        scrapybara_client = scrapybara.Scrapybara()
+        scrapybara_instance = scrapybara_client.start_ubuntu(timeout_hours=0.2)
+
         data = request.get_json()
         user_prompt = data.get("user_prompt")
         project_name = data.get("project_name")
@@ -29,7 +33,7 @@ def prototype():
         if not user_prompt:
             return jsonify({"error": "Missing 'user_prompt' in request"}), 400
             
-        prototyper = Prototyper(user_prompt, name=project_name)
+        prototyper = Prototyper(user_prompt, scrapybara_client, scrapybara_instance, name=project_name)
         
         prototyper.setup_repo()
         prototyper.repo_summary = "a 3D interactive scene using Three.js, featuring a large green ground plane, a sky-blue background, and a perspective camera positioned at human eye level. Users can navigate using WASD and arrow keys for movement and OrbitControls for mouse-based rotation. The scene includes ambient and directional lighting to enhance realism. "
@@ -51,11 +55,19 @@ def prototype():
                 "type": MessageTypes.TICKET_COMPLETED.value,
                 "message": response
             }
-            
-            ticket_responses.append({
-                "ticket": f"Completed ticket: {ticket.description}",
-                "internal_dialogue": response,
-            })
+
+            failure = debug_with_scrapybara(prototyper.repo_path, ticket.description, prototyper.scrapybara_client, prototyper.scrapybara_instance)
+            if failure:
+                ticket_responses.append({
+                    "ticket": f"Completed ticket: {ticket.description}",
+                    "internal_dialogue": response,
+                    "debug": failure
+                })
+            else:
+                ticket_responses.append({
+                    "ticket": f"Completed ticket: {ticket.description}",
+                    "internal_dialogue": response,
+                })
         
         if os.path.exists(prototyper.repo_path):
             return jsonify({

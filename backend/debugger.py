@@ -164,18 +164,19 @@ def debug_with_scrapybara(repo_path, ticket_description, scrapybara_client, inst
             if match:
                 rating = int(match.group(1))
 
-            if rating < 7:
+            if rating < 6:
                 html_code, js_code, css_code= get_fix_suggestions(html_code, js_code, css_code, response.text)
                 update_code(html_file, html_code, js_file, js_code, css_file, css_code)
                 iterations+=1  
             else:
                 logging.error("No fix suggestions received from image debug loop.")
-                break
+                return None
         except FileNotFoundError:
             print("Error: The file was not found.")
-            return
+            raise FileNotFoundError
         except Exception as e:
             logging.error(f"Error reading file or responding: {e}")
+            return "Failed"
 
 # if __name__ == "__main__":
 #     html_file = "prototype.html"
