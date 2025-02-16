@@ -21,11 +21,12 @@ def prototype():
         if prototyper is None:
             prototyper = Prototyper(user_prompt, name=project_name)
         
+        prototyper.setup_repo()
         prototyper.summarize_repo()
         prototyper.create_tickets()
-        
+
         for ticket in prototyper.tickets:
-            response = ticket.complete(prototyper.repo_path)
+            response = ticket.complete(prototyper.repo_path, prototyper.repo_summary)
             print(f"[INFO] internal dialogue: {response}")
             # Run debug loop on the file
             # full_debug_loop(prototyper.file_path, ticket.description)
@@ -42,4 +43,4 @@ def prototype():
         return jsonify({"error": f"An error occurred: {str(e)}"}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5001)

@@ -2,6 +2,7 @@ import shutil
 from llm import chatcompletion
 from ticket import Ticket
 # from debug_loop import full_debug_loop
+import scrapybara
 import openai
 import os
 import uuid
@@ -15,13 +16,14 @@ class Prototyper:
         self.repo_summary = None
         self.repo_path = os.path.join("static", self.name)
         self.llm_client = openai.Client()
+        self.scrapybara_client = scrapybara.Scrapybara()
 
     def setup_repo(self):
         """
         Checks if self.repo_path exists. If not, copies everything from static/template/
         into static/ and names it either self.name or a random UUID.
         """
-        if os.path.exists(self.repo_path):
+        if self.repo_path and os.path.exists(self.repo_path):
             print(f"[INFO] Repository '{self.repo_path}' already exists.")
             return
 
@@ -81,6 +83,7 @@ class Prototyper:
             Ticket(ticket["summary"], ticket["description"])
             for ticket in response["tickets"]
         ]
+        print(f"INFO] Created {len(tickets)} tickets.")
         self.tickets = tickets[:5] #first 5 tickets only for now
 
     def summarize_repo(self):
@@ -144,10 +147,10 @@ simple_ticket = Ticket(
 )
 
 
-prototyper = Prototyper("Create an explorable 3D environment for my history class where you can walk through beautifully recreated ancient sites: The Great Pyramid of Giza, The Colosseum of Rome, The Great Wall of China, and Machu Picchu. When you click on the sites, it should show a description.")
-prototyper.setup_repo()
-prototyper.summarize_repo()
-response = simple_ticket.complete(prototyper.repo_path, prototyper.repo_summary)
+# prototyper = Prototyper("Create an explorable 3D environment for my history class where you can walk through beautifully recreated ancient sites: The Great Pyramid of Giza, The Colosseum of Rome, The Great Wall of China, and Machu Picchu. When you click on the sites, it should show a description.")
+# prototyper.setup_repo()
+# prototyper.summarize_repo()
+# response = simple_ticket.complete(prototyper.repo_path, prototyper.repo_summary)
 # prototyper.create_tickets()
 
 # for ticket in prototyper.tickets:
