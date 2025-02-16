@@ -226,7 +226,7 @@ export default function Home() {
         projectName={projectName}
         setProjectName={setProjectName}
       />      
-      <main className="flex-1 max-w-[95%] w-full mx-auto px-2 flex flex-col">
+      <main className="flex-1 max-w-[99%] w-full mx-auto px-2 flex flex-col">
         <div className="flex-1 grid grid-cols-2 gap-3 h-[65vh]">
           <CodeEditor 
             files={files}
