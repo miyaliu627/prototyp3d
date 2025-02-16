@@ -1,5 +1,7 @@
-
-from .ticket import Ticket
+try:
+    from .ticket import Ticket
+except:
+    from ticket import Ticket
 import openai
 import requests
 from scrapybara import Scrapybara
