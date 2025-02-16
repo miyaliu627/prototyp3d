@@ -1,4 +1,5 @@
 proto/
+debug_loop.log
 .DS_Store
 .env
 .pyc
