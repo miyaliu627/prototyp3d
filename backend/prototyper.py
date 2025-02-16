@@ -1,7 +1,13 @@
 import shutil
-from .llm import chatcompletion
-from .ticket import Ticket
-from .debugger import debug_with_scrapybara
+try:
+    from .llm import chatcompletion
+    from .ticket import Ticket
+    from .debugger import debug_with_scrapybara
+except:
+    from llm import chatcompletion
+    from ticket import Ticket
+    from debugger import debug_with_scrapybara
+    
 import scrapybara
 import openai
 import os
