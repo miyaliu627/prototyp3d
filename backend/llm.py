@@ -39,9 +39,6 @@ def chatcompletion(user_prompt, system_prompt=""):
 
 
 def chatcompletion_stream(user_prompt, system_prompt=""):
-    """
-    Calls OpenAI's GPT-4o streaming API to get code in chunks and write it to a file incrementally.
-    """
     try:
         response = client.chat.completions.create(
             model="o3-mini",

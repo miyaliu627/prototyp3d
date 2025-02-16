@@ -1,67 +1,14 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { MessageSquare, Database, Loader2, ArrowUp } from 'lucide-react';
-
-// Constants
-const TYPING_SPEED = 1;
-const MAX_CHUNK_SIZE = 50;
-const BACKEND_URL = process.env.NGROK_BACKEND || "http://localhost:5001";
 
 const Chat = ({ projectName }) => {
   const [chatMessages, setChatMessages] = useState([]);
-  const [displayMessages, setDisplayMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
   const [hasCreatedPrototype, setHasCreatedPrototype] = useState(false);
   const eventSourceRef = useRef(null);
   const chatContainerRef = useRef(null);
-  
-  // Typing animation
-  const animateTyping = async (message, index) => {
-    setIsTyping(true);
-    let currentText = '';
-    const chunks = [];
-    
-    for (let i = 0; i < message.content.length; i += MAX_CHUNK_SIZE) {
-      chunks.push(message.content.slice(i, i + MAX_CHUNK_SIZE));
-    }
 
-    setDisplayMessages(prev => [
-      ...prev.slice(0, index),
-      { ...message, content: '' },
-      ...prev.slice(index + 1)
-    ]);
-
-    for (const chunk of chunks) {
-      currentText += chunk;
-      setDisplayMessages(prev => [
-        ...prev.slice(0, index),
-        { ...message, content: currentText },
-        ...prev.slice(index + 1)
-      ]);
-
-      if (chatContainerRef.current) {
-        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-      }
-
-      await new Promise(resolve => setTimeout(resolve, TYPING_SPEED * chunk.length));
-    }
-    setIsTyping(false);
-  };
-
-  useEffect(() => {
-    if (chatMessages.length > displayMessages.length && !isTyping) {
-      const newMessage = chatMessages[chatMessages.length - 1];
-      if (newMessage.role === 'assistant') {
-        setDisplayMessages(prev => [...prev, { ...newMessage, content: '' }]);
-        animateTyping(newMessage, displayMessages.length);
-      } else {
-        setDisplayMessages(prev => [...prev, newMessage]);
-      }
-    }
-  }, [chatMessages, displayMessages.length, isTyping]);
-
-  // Display data
   const DataDisplay = ({ data, title }) => {
     if (!data) return null;
     return (
@@ -86,7 +33,6 @@ const Chat = ({ projectName }) => {
     );
   };
 
-  // Start Server-Sent Events (SSE)
   const startSSE = () => {
     if (eventSourceRef.current) return;
 
@@ -94,10 +40,17 @@ const Chat = ({ projectName }) => {
 
     source.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      setChatMessages(prev => [...prev, {
-        role: 'assistant',
-        content: data.message,
-      }]);
+      setChatMessages(prev => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: data.message,
+        }
+      ]);
+
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      }
     };
 
     source.onerror = (err) => {
@@ -108,7 +61,6 @@ const Chat = ({ projectName }) => {
     eventSourceRef.current = source;
   };
 
-  // Stop SSE
   const stopSSE = () => {
     if (eventSourceRef.current) {
       eventSourceRef.current.close();
@@ -116,7 +68,6 @@ const Chat = ({ projectName }) => {
     }
   };
 
-  // Handle sending messages
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
 
@@ -160,7 +111,6 @@ const Chat = ({ projectName }) => {
         }]);
         return;
       }
-
     } catch (error) {
       setChatMessages(prev => [...prev, {
         role: 'assistant',
@@ -170,6 +120,10 @@ const Chat = ({ projectName }) => {
       stopSSE();
       setIsLoading(false);
       setInputMessage('');
+
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      }
     }
   };
 
@@ -181,9 +135,9 @@ const Chat = ({ projectName }) => {
           <h2 className="text-purple-400 font-medium text-sm font-sans font-bold">AI Assistant</h2>
         </div>
       </div>
-      
+
       <div ref={chatContainerRef} className="flex-1 overflow-y-auto mb-3 space-y-3 pr-2">
-        {displayMessages.map((message, index) => (
+        {chatMessages.map((message, index) => (
           <div key={index}>
             <div className={`p-2.5 rounded-lg ${
               message.role === 'user' 
@@ -201,13 +155,21 @@ const Chat = ({ projectName }) => {
           type="text"
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && !isLoading && !isTyping && handleSendMessage()}
+          onKeyPress={(e) => e.key === 'Enter' && !isLoading && handleSendMessage()}
           placeholder="Describe your 3D model requirements..."
-          className="flex-1 bg-slate-900 border border-slate-700/50 rounded-lg px-3 py-1.5 text-white text-sm"
+          className="flex-1 bg-slate-900 border border-slate-700/50 rounded-lg px-3 py-1.5 text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
         />
 
-        <button onClick={handleSendMessage} disabled={isLoading || isTyping} className="p-2 bg-purple-600 rounded-lg">
-          {isLoading ? <Loader2 size={16} className="animate-spin text-white" /> : <ArrowUp size={16} className="text-white" />}
+        <button 
+          onClick={handleSendMessage}
+          disabled={isLoading}
+          className="p-2 rounded-lg bg-purple-600 hover:bg-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+        >
+          {isLoading ? (
+            <Loader2 size={16} className="animate-spin text-white" />
+          ) : (
+            <ArrowUp size={16} className="text-white" />
+          )}
         </button>
       </div>
     </div>

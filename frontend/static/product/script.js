@@ -6,9 +6,9 @@ scene.background = new THREE.Color(0x87ceeb); // Light blue sky
 
 // Set up a perspective camera.
 const camera = new THREE.PerspectiveCamera(
-  75,
-  window.innerWidth / window.innerHeight,
-  0.1,
+  75, 
+  window.innerWidth / window.innerHeight, 
+  0.1, 
   1000
 );
 camera.position.set(0, 1.6, 5);
@@ -32,48 +32,6 @@ scene.add(ambientLight);
 const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
 directionalLight.position.set(5, 10, 7.5);
 scene.add(directionalLight);
-
-// Create a stylized 3D tree asset.
-function createTree(position) {
-  const tree = new THREE.Group();
-
-  // Create the trunk
-  const trunkHeight = 1;
-  const trunkRadius = 0.15;
-  const trunkGeometry = new THREE.CylinderGeometry(trunkRadius, trunkRadius, trunkHeight, 8);
-  const trunkMaterial = new THREE.MeshStandardMaterial({ color: 0x8B4513 }); // Brown color
-  const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
-  trunk.position.y = trunkHeight / 2;  // so that base touches ground
-  tree.add(trunk);
-
-  // Create the canopy
-  const canopyRadius = 0.5;
-  // Icosahedron used for a low-poly, stylized look
-  const canopyGeometry = new THREE.IcosahedronGeometry(canopyRadius, 0);
-  const canopyMaterial = new THREE.MeshStandardMaterial({ color: 0x2E8B57 }); // Green color
-  const canopy = new THREE.Mesh(canopyGeometry, canopyMaterial);
-  canopy.position.y = trunkHeight + canopyRadius * 0.8;  // slightly overlap trunk
-  tree.add(canopy);
-
-  // Position the entire tree
-  tree.position.copy(position);
-  scene.add(tree);
-}
-
-// Generate a forest of trees on the ground plane.
-function generateForest() {
-  const numberOfTrees = 50;
-  // Define boundaries to avoid placing trees at the very edge of the plane
-  const boundary = 40;
-  for (let i = 0; i < numberOfTrees; i++) {
-    const x = Math.random() * (boundary * 2) - boundary;
-    const z = Math.random() * (boundary * 2) - boundary;
-    createTree(new THREE.Vector3(x, 0, z));
-  }
-}
-
-// Call the forest generator function
-generateForest();
 
 // Add OrbitControls to allow mouse-based scene navigation.
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -135,7 +93,7 @@ function animate() {
   requestAnimationFrame(animate);
 
   const delta = clock.getDelta();
-  const moveSpeed = 5;
+  const moveSpeed = 5; 
 
   const direction = new THREE.Vector3();
   camera.getWorldDirection(direction);

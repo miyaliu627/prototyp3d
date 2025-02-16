@@ -175,24 +175,17 @@ def iterate():
 @app.route('/prototype/progress', methods=['GET'])
 def prototype_progress():
     def event_stream():
-        # Keep track of the index of the last message we have sent
         last_index = 0
         while True:
-            # If there are new messages, yield them
             while last_index < len(progress_messages):
                 msg = progress_messages[last_index]
                 last_index += 1
 
-                # SSE format: 'data: <JSON or text>\\n\\n'
                 yield f"data: {json.dumps(msg)}\n\n"
                 print(f"[INFO] yield {last_index-1}th progress message: {msg}")
-            # If we've sent all messages so far, we sleep briefly
-            # to avoid busy looping. Alternatively, you might use
-            # time.sleep(0.1) or gevent or an actual queue that blocks.
             import time
             time.sleep(0.5)
 
-    # Return a streaming response
     return Response(stream_with_context(event_stream()), mimetype='text/event-stream')
 
 
