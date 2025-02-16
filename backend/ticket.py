@@ -1,5 +1,6 @@
 import re
 import os
+import requests
 import json
 from llm import chatcompletion_stream
 
@@ -34,6 +35,12 @@ class Ticket:
         if not os.path.exists(repo_path):
             print(f"Error: Repository path '{repo_path}' does not exist.")
             return {"internal_dialogue": "Invalid repository path.", "updated_files": {}}
+
+        initial_data = {
+            "ticket_summary": self.summary,
+            "ticket_description": self.description
+        }
+        self.send_json_to_frontend(initial_data)
 
         files_formatted = []
         file_paths = []
@@ -108,5 +115,15 @@ Ensure only the updated code is included in "updated_files", and nothing extra. 
 
             except Exception as e:
                 print(f"Error writing to file {file_path}: {e}")
+        
+        internal_dialogue = parsed_response.get("internal_dialogue", "No internal dialogue provided.")
+        final_data = {
+            "internal_dialogue": internal_dialogue,
+            "updated_files": list(updated_files.keys())
+        }
+        self.send_json_to_frontend(final_data)
 
-        return parsed_response.get("internal_dialogue", "No internal dialogue provided.")
+        return internal_dialogue
+
+    def send_json_to_frontend(self, data):
+        pass

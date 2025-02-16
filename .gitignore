@@ -1,3 +1,5 @@
 proto/
 .DS_Store
 .env
+.pyc
+__pycache__/
