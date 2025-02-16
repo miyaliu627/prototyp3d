@@ -1,4 +1,3 @@
-// components/FileNavigation.jsx
 'use client';
 import React from 'react';
 import { ChevronDown, ChevronRight, File, Folder } from 'lucide-react';
@@ -8,7 +7,8 @@ export default function FileNavigation({
   currentFile, 
   setCurrentFile, 
   isNavExpanded, 
-  setIsNavExpanded 
+  setIsNavExpanded,
+  projectName
 }) {
   return (
     <div className="mb-2">
@@ -18,7 +18,7 @@ export default function FileNavigation({
       >
         {isNavExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
         <Folder size={16} />
-        <span className="text-xs">Project Files</span>
+        <span className="text-xs">{projectName || "Untitled Project"}</span>
       </button>
       
       {isNavExpanded && (

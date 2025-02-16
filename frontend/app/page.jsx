@@ -183,8 +183,10 @@ export default function Home() {
       const url = window.URL.createObjectURL(content);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'project-files.zip';
+      const sanitizedProjectName = projectName ? projectName.replace(/\s+/g, "_") : "Untitled_Project";
+      a.download = `${sanitizedProjectName}.zip`; 
       document.body.appendChild(a);
+
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
@@ -236,6 +238,7 @@ export default function Home() {
             onRenderPreview={renderPreview}
             lastSaved={showSaveNotification}
             showAutoSave={isAutoSave}
+            projectName={projectName}
           />
 
           <Preview previewRef={previewRef} />
