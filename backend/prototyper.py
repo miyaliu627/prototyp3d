@@ -27,10 +27,6 @@ class Prototyper:
 
 
     def setup_repo(self):
-        """
-        copies everything from static/template/
-        into static/ and names it either self.name or a random UUID.
-        """
         template_path = "../frontend/static/template"
 
         if not os.path.exists(template_path):
@@ -145,48 +141,3 @@ class Prototyper:
         
         self.repo_summary = response["summary"]
 
-### ==================== TEST ==================== ###
-# simple_ticket = Ticket(
-#     "'Create trees",
-#     "Add green trees to the Three.js environment",
-# )
-
-# prototyper = Prototyper("Create an explorable 3D environment for my history class where you can walk through beautifully recreated ancient sites: The Great Pyramid of Giza, The Colosseum of Rome, The Great Wall of China, and Machu Picchu. When you click on the sites, it should show a description.")
-# prototyper.setup_repo()
-# prototyper.summarize_repo()
-# response = simple_ticket.complete(prototyper.repo_path, prototyper.repo_summary)
-# prototyper.create_tickets()
-
-# for ticket in prototyper.tickets:
-#     response = ticket.complete(prototyper.repo_path)
-#     print(f"[INFO] internal dialogue: {response}")
-    # Run debug loop on the file
-    # full_debug_loop(prototyper.file_path, ticket.description)
-
-
-# print(prototyper.create_tickets())
-
-
-# simple_ticket.complete(
-#     "/Users/mimiyaya/Documents/github/prototyp3d/template.html",
-#     "/Users/mimiyaya/Documents/github/prototyp3d/pyramid.html"
-# )
-# full_debug_loop(
-#     "/Users/mimiyaya/Documents/github/treehacks2025/prototyp3d/template.html",
-#     ticket.description, client,
-# )
-
-# client = openai.Client()
-# pyramid_ticket = Ticket(
-#     "'Create 3D model of The Great Pyramid of Giza'",
-#     "Develop a detailed 3D model of The Great Pyramid of Giza to be integrated into the Three.js environment. The model should accurately depict the pyramid's structure, textures, and scale in relation to the ground plane.",
-# )
-
-
-
-# full_debug_loop(
-#     "/Users/jason.zhan/Documents/Treehacks/treehacks2025/prototyp3d/template.html",
-#     "/Users/jason.zhan/Documents/Treehacks/treehacks2025/prototyp3d/template.js",
-#     "/Users/jason.zhan/Documents/Treehacks/treehacks2025/prototyp3d/template.css",
-#     ticket.description, client,
-# )
