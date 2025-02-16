@@ -14,9 +14,8 @@ prototyp3d allows users—including developers, designers, educators, and entrep
 
 ## How We Built It
 ### **AI-Powered Prototyping Pipeline**
-- **Natural Language Processing**: Utilizes OpenAI's **GPT-4o** to interpret user descriptions and create structured development tasks.
-- **Autonomous Code Generation**: Uses **GPT-3.5-turbo** to generate and optimize Three.js, Babylon.js, and WebXR code.
-- **Iterative Debugging & Testing**: AI agents interact with the environment, perform visual inspections, and provide feedback using **Scrapybara**.
+- **Natural Language Processing / Autonomous Code Generation**: Utilizes OpenAI's **o3-mini** to interpret user descriptions and create structured development tasks.
+- **Iterative Debugging & Testing**: The **Scrapybara** agent interacts with the environment and performs visual inspections which are later fed into the feedback debugging loop.
 - **Optimized Rendering Pipeline**: Supports **Three.js, Babylon.js, WebXR**, and other 3D/VR frameworks.
 - **Modern Frontend**: A sleek UI built with **React, JavaScript, HTML, and CSS** for a seamless experience.
 
@@ -35,8 +34,8 @@ prototyp3d allows users—including developers, designers, educators, and entrep
 - **Frontend**: React, JavaScript, HTML, CSS
 - **Backend**: Python, Flask
 - **Infrastructure**: Ubuntu, Bash, ngrok
-- 
+
 ## License
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **MIT License**.
 
 
