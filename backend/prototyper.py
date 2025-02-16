@@ -1,7 +1,8 @@
 import shutil
 from llm import chatcompletion
 from ticket import Ticket
-# from debug_loop import full_debug_loop
+from debugger import full_debug_loop
+import ticket
 import scrapybara
 import openai
 import os
@@ -162,12 +163,6 @@ prototyper.setup_repo()
 
 # print(prototyper.create_tickets())
 
-# client = openai.Client()
-# pyramid_ticket = Ticket(
-#     "'Create 3D model of The Great Pyramid of Giza'",
-#     "Develop a detailed 3D model of The Great Pyramid of Giza to be integrated into the Three.js environment. The model should accurately depict the pyramid's structure, textures, and scale in relation to the ground plane.",
-# )
-
 
 # simple_ticket.complete(
 #     "/Users/mimiyaya/Documents/github/prototyp3d/template.html",
@@ -175,5 +170,20 @@ prototyper.setup_repo()
 # )
 # full_debug_loop(
 #     "/Users/mimiyaya/Documents/github/treehacks2025/prototyp3d/template.html",
+#     ticket.description, client,
+# )
+
+# client = openai.Client()
+# pyramid_ticket = Ticket(
+#     "'Create 3D model of The Great Pyramid of Giza'",
+#     "Develop a detailed 3D model of The Great Pyramid of Giza to be integrated into the Three.js environment. The model should accurately depict the pyramid's structure, textures, and scale in relation to the ground plane.",
+# )
+
+
+
+# full_debug_loop(
+#     "/Users/jason.zhan/Documents/Treehacks/treehacks2025/prototyp3d/template.html",
+#     "/Users/jason.zhan/Documents/Treehacks/treehacks2025/prototyp3d/template.js",
+#     "/Users/jason.zhan/Documents/Treehacks/treehacks2025/prototyp3d/template.css",
 #     ticket.description, client,
 # )
