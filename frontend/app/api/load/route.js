@@ -6,9 +6,8 @@ export async function GET() {
   try {
     const templateDir = join(process.cwd(), 'static/template/');
 
-    // Check if the template directory exists
     const fs = require('fs');
-    fs.accessSync(templateDir, fs.constants.F_OK);  // This checks if the directory exists
+    fs.accessSync(templateDir, fs.constants.F_OK);
 
     const files = {
       'index.html': await readFile(join(templateDir, 'index.html'), 'utf8'),
@@ -18,7 +17,7 @@ export async function GET() {
 
     return NextResponse.json(files);
   } catch (error) {
-    console.error('Error loading files:', error);  // Log the error details
+    console.error('Error loading files:', error);
     return NextResponse.json(
       { error: 'Failed to load files' },
       { status: 500 }
