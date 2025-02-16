@@ -2,7 +2,7 @@ import re
 import os
 import requests
 import json
-from llm import chatcompletion_stream
+from .llm import chatcompletion_stream
 
 class Ticket:
     def __init__(self, summary, description):
