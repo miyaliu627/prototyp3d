@@ -2,7 +2,10 @@ import re
 import os
 import requests
 import json
-from .llm import chatcompletion_stream
+try:
+    from .llm import chatcompletion_stream
+except:
+    from llm import chatcompletion_stream
 
 class Ticket:
     def __init__(self, summary, description):
