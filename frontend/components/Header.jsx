@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { Save, Pencil } from 'lucide-react';
 
 export default function Header({ onDownload, projectName, setProjectName }) {
@@ -22,10 +23,13 @@ export default function Header({ onDownload, projectName, setProjectName }) {
   return (
     <header className="bg-gradient-to-b from-slate-800/80 to-slate-900/0 p-2 relative">
       <div className="max-w-[95%] mx-auto flex justify-between items-center">
-        <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text">
-          prototyp3d
-        </h1>
-        
+        <Image
+          src="/prototyp3d.png"
+          alt="Prototyp3D Logo"
+          width={150}
+          height={60}
+          className="object-contain"
+        />        
         <div className="absolute left-1/2 -translate-x-1/2 flex items-center">
           {isEditing ? (
             <form onSubmit={handleSubmit} className="flex items-center">
@@ -41,7 +45,7 @@ export default function Header({ onDownload, projectName, setProjectName }) {
             </form>
           ) : (
             <div className="flex items-center gap-2">
-              <span className="text-slate-300 text-sm">
+              <span className="text-purple-400 text-sm font-sans font-bold">
                 {projectName || 'Untitled Project'}
               </span>
               <button
