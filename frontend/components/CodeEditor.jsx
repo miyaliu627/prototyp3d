@@ -1,3 +1,4 @@
+// components/CodeEditor.jsx
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import { Terminal, Play, Copy, CheckCheck } from 'lucide-react';
@@ -29,7 +30,9 @@ export default function CodeEditor({
   isNavExpanded,
   setIsNavExpanded,
   onRenderPreview,
-  handleKeyDown
+  handleKeyDown,
+  lastSaved,
+  showAutoSave
 }) {
   const [isCopied, setIsCopied] = useState(false);
   const [highlightedContent, setHighlightedContent] = useState('');
@@ -69,18 +72,27 @@ export default function CodeEditor({
 
   return (
     <div className="bg-gradient-to-br from-slate-800/50 to-slate-800/30 backdrop-blur-sm rounded-lg p-3 flex flex-col">
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-2 relative">
         <div className="flex items-center gap-2">
-          <Terminal size={18} className="text-slate-400" />
-          <h2 className="text-white font-medium text-sm">Code Editor</h2>
+          <Terminal size={18} className="text-purple-400" />
+          <h2 className="text-purple-400 font-medium text-sm font-sans font-bold">Code Editor</h2>
+
         </div>
+        
+        {/* Save notifications */}
+        {lastSaved && (
+          <div className="absolute left-1/2 -translate-x-1/2 px-3 py-1 bg-slate-700/50 text-slate-300 text-xs rounded-full transition-opacity">
+            {showAutoSave ? 'Auto-saved to instance' : 'Saved to instance'}
+          </div>
+        )}
+
         <button 
           onClick={onRenderPreview}
           className="p-1.5 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 transition"
         >
           <Play size={14} className="text-green-400" />
         </button>
-      </div>
+      </div>     
       <FileNavigation
         files={files}
         currentFile={currentFile}

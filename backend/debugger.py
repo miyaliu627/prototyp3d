@@ -187,7 +187,7 @@ def debug_with_scrapybara(repo_path, ticket_description, scrapybara_client, inst
 
 
 
-client = Scrapybara()
-instance = client.start_ubuntu(timeout_hours=0.2)
-debug_with_scrapybara("static/trees", "Make the tree disappear when you click on them", client, instance)
+#client = Scrapybara()
+#instance = client.start_ubuntu(timeout_hours=0.2)
+#debug_with_scrapybara("static/trees", "Make the tree disappear when you click on them", client, instance)
 
