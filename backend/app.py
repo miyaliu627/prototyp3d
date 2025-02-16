@@ -18,6 +18,9 @@ load_dotenv(dotenv_path="../.env")
 BACKEND_URL = os.getenv("NGROK_BACKEND", "http://localhost:5001")  # ✅ Use correct env var
 print(f"Using BACKEND_URL: {BACKEND_URL}")
 
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+SCRAPYBARA_API_KEY = os.getenv("SCRAPYBARA_API_KEY")
+
 app = Flask(__name__)
 
 CORS(app, resources={r"/*": {"origins": "*"}})
