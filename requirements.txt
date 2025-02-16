@@ -54,3 +54,5 @@ urllib3==2.3.0
 virtualenv==20.29.2
 xattr==1.1.4
 zstandard==0.23.0
+gunicorn==23.0.0
+uvicorn==0.34.0

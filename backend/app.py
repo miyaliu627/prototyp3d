@@ -1,4 +1,5 @@
-from flask import Flask, request, jsonify
+import json
+from flask import Flask, request, jsonify, Response, stream_with_context
 from flask_cors import CORS
 from enum import Enum
 import os
@@ -10,8 +11,10 @@ app = Flask(__name__)
 CORS(app)
 
 prototyper = None
+progress_messages = []
 
 class MessageTypes(Enum):
+    SETTING_UP = "setting_up"
     NEW_TICKET = "new_ticket"
     TICKET_COMPLETED = "ticket_completed"
     ERROR = "error"
@@ -22,6 +25,7 @@ class MessageTypes(Enum):
 @app.route('/prototype/create', methods=['POST'])
 def prototype():
     global prototyper
+    global progress_messages
     try:
         scrapybara_client = scrapybara.Scrapybara()
         scrapybara_instance = scrapybara_client.start_ubuntu(timeout_hours=0.2)
@@ -33,42 +37,66 @@ def prototype():
         if not user_prompt:
             return jsonify({"error": "Missing 'user_prompt' in request"}), 400
             
+        progress_messages.clear()
+
         prototyper = Prototyper(user_prompt, scrapybara_client, scrapybara_instance, name=project_name)
         
+        progress_messages.append({
+            "type": MessageTypes.SETTING_UP.value,
+            "message": "I am setting up the repository..."
+        })
         prototyper.setup_repo()
+        progress_messages.append({
+            "type": MessageTypes.SETTING_UP.value,
+            "message": "I have finished setting up the initial repository!"
+        })
         prototyper.repo_summary = "a 3D interactive scene using Three.js, featuring a large green ground plane, a sky-blue background, and a perspective camera positioned at human eye level. Users can navigate using WASD and arrow keys for movement and OrbitControls for mouse-based rotation. The scene includes ambient and directional lighting to enhance realism. "
+        
+        progress_messages.append({
+            "type": MessageTypes.SETTING_UP.value,
+            "message": "I am creating the tickets for this project..."
+        })
         prototyper.create_tickets()
+        progress_messages.append({
+            "type": MessageTypes.SETTING_UP.value,
+            "message": f"I have created {len(prototyper.tickets)} tickets for this project."
+        })
         
         # Store all ticket data
         ticket_responses = []
         
         for ticket in prototyper.tickets:
             # send initial data for the ticket to frontend
-            initial_data = {
+            progress_messages.append({
                 "type": MessageTypes.NEW_TICKET.value,
-                "message": f"I am working on completing the following ticket: {ticket.description}",
-            }
+                "message": f"Working on ticket: {ticket.description}"
+            })
             
             response = ticket.complete(prototyper.repo_path, prototyper.repo_summary)
-            
-            final_data = {
-                "type": MessageTypes.TICKET_COMPLETED.value,
-                "message": response
-            }
 
             failure = debug_with_scrapybara(prototyper.repo_path, ticket.description, prototyper.scrapybara_client, prototyper.scrapybara_instance)
             if failure:
-                ticket_responses.append({
-                    "ticket": f"Completed ticket: {ticket.description}",
-                    "internal_dialogue": response,
-                    "debug": failure
+                progress_messages.append({
+                    "type": MessageTypes.DEBUG.value,
+                    "message": f"Unable to debug output for {ticket.description}... aborting process right now",
                 })
+                raise Exception("Debugging failed")
             else:
                 ticket_responses.append({
                     "ticket": f"Completed ticket: {ticket.description}",
                     "internal_dialogue": response,
                 })
+                progress_messages.append({
+                    "type": MessageTypes.TICKET_COMPLETED.value,
+                    "message": f"Finished ticket: {ticket.description}",
+                    "details": response
+                })
         
+        progress_messages.append({
+            "type": MessageTypes.COMPLETED.value,
+            "message": "All tickets completed!"
+        })
+
         if os.path.exists(prototyper.repo_path):
             return jsonify({
                 "success": "Created repo",
@@ -128,6 +156,31 @@ def iterate():
             
     except Exception as e:
         return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+
+
+@app.route('/prototype/progress', methods=['GET'])
+def prototype_progress():
+    def event_stream():
+        # Keep track of the index of the last message we have sent
+        last_index = 0
+        while True:
+            # If there are new messages, yield them
+            while last_index < len(progress_messages):
+                msg = progress_messages[last_index]
+                last_index += 1
+
+                # SSE format: 'data: <JSON or text>\\n\\n'
+                yield f"data: {json.dumps(msg)}\n\n"
+                print(f"[INFO] yield {last_index-1}th progress message: {msg}")
+            # If we've sent all messages so far, we sleep briefly
+            # to avoid busy looping. Alternatively, you might use
+            # time.sleep(0.1) or gevent or an actual queue that blocks.
+            import time
+            time.sleep(0.5)
+
+    # Return a streaming response
+    return Response(stream_with_context(event_stream()), mimetype='text/event-stream')
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)
