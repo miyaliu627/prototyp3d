@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, Database, Loader2, ArrowUp } from 'lucide-react';
 
-const TYPING_SPEED = 1;
-const MAX_CHUNK_SIZE = 50;
+const TYPING_SPEED = 8;
+const MAX_CHUNK_SIZE = 5;
 
 const Chat = ({ projectName }) => {
   const [chatMessages, setChatMessages] = useState([]);
