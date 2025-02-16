@@ -99,11 +99,28 @@ export default function Home() {
     }
   }, [files]);
 
-  const handleSendMessage = () => {
-    if (inputMessage.trim()) {
-      setChatMessages([...chatMessages, { role: 'user', content: inputMessage }]);
-      setInputMessage('');
-    }
+  const handleSendMessage = async () => {
+    const response = await fetch('/prototype', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        user_prompt: inputMessage,
+        project_name: 'your-project'
+      })
+    });
+    
+    const data = await response.json();
+    
+    setChatMessages(prev => [...prev, {
+      role: 'assistant',
+      content: data.message,
+      ticketData: {
+        initial: data.initial_data,
+        final: data.final_data
+      }
+    }]);
   };
 
   const renderPreview = async () => {
