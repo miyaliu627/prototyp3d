@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import os
 from prototyper import Prototyper
 # from debug_tool import full_debug_loop
 
 app = Flask(__name__)
+CORS(app)
 
 prototyper = None
 
