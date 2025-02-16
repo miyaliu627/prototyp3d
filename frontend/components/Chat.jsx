@@ -34,17 +34,12 @@ const Chat = ({ projectName }) => {
   };
 
   const startSSE = () => {
-    // If we already have an EventSource, don't create a new one.
     if (eventSourceRef.current) return;
 
     const source = new EventSource('http://localhost:5001/prototype/progress');
 
     source.onmessage = (event) => {
-      // event.data is a string; parse it as JSON.
       const data = JSON.parse(event.data);
-      // Example data shape: { type, message, details }
-
-      // Append as an 'assistant' message
       setChatMessages(prev => [
         ...prev,
         {
@@ -53,7 +48,6 @@ const Chat = ({ projectName }) => {
         }
       ]);
 
-      // Scroll to bottom
       if (chatContainerRef.current) {
         chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
       }
@@ -61,7 +55,6 @@ const Chat = ({ projectName }) => {
 
     source.onerror = (err) => {
       console.error('EventSource error:', err);
-      // Optionally close on error to prevent reconnect loops
       source.close();
     };
 
@@ -118,27 +111,6 @@ const Chat = ({ projectName }) => {
         }]);
         return;
       }
-
-      
-
-      // data.ticket_responses?.forEach(ticketResponse => {
-      //   setChatMessages(prev => [...prev, {
-      //     role: 'assistant',
-      //     content: ticketResponse.message,
-      //     ticketData: {
-      //       initial: ticketResponse.initial_data,
-      //       final: ticketResponse.final_data
-      //     }
-      //   }]);
-      // });
-
-      // if (!data.ticket_responses?.length) {
-      //   setChatMessages(prev => [...prev, {
-      //     role: 'assistant',
-      //     content: `Success: ${data.success}. Repository path: ${data.repo_path}`
-      //   }]);
-      // }
-
     } catch (error) {
       setChatMessages(prev => [...prev, {
         role: 'assistant',

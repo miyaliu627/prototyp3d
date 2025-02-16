@@ -16,9 +16,6 @@ class Ticket:
         return f"Ticket(summary='{self.summary}', description='{self.description}')"
 
     def extract_json_response(self, response_text):
-        """
-        Extracts JSON from AI response, ensuring we get a clean JSON output.
-        """
         match = re.search(r"```json\n(.*?)```", response_text, re.DOTALL)
         if match:
             json_str = match.group(1).strip()
