@@ -1,3 +1,4 @@
+// components/CodeEditor.jsx
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import { Terminal, Play, Copy, CheckCheck } from 'lucide-react';
@@ -105,7 +106,7 @@ export default function CodeEditor({
           />
           <pre
             ref={preRef}
-            className="absolute inset-0 w-full h-full pointer-events-none bg-gradient-to-br from-slate-900/90 to-slate-900/80 rounded-lg p-3 font-mono text-sm text-slate-300 overflow-auto whitespace-pre-wrap"
+            className="absolute inset-0 w-full h-full pointer-events-none bg-gradient-to-br from-slate-900/90 to-slate-900/75 rounded-lg p-3 font-mono text-sm text-slate-300 overflow-auto whitespace-pre-wrap"
             dangerouslySetInnerHTML={{ __html: highlightedContent }}
           />
         </div>
