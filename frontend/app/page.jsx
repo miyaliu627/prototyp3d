@@ -1,5 +1,3 @@
-// app/page.js
-
 'use client';
 import React, { useCallback, useState, useRef, useEffect } from 'react';
 import Header from '@/components/Header';
@@ -7,10 +5,9 @@ import CodeEditor from '@/components/CodeEditor';
 import Preview from '@/components/Preview';
 import Chat from '@/components/Chat';
 import JSZip from 'jszip';
-import { DEFAULT_FILES } from './defaultFiles';
 
 export default function Home() {
-  const [files, setFiles] = useState(DEFAULT_FILES);
+  const [files, setFiles] = useState({});
   const [currentFile, setCurrentFile] = useState('index.html');
   const [isNavExpanded, setIsNavExpanded] = useState(true);
   const [chatMessages, setChatMessages] = useState([
@@ -24,6 +21,55 @@ export default function Home() {
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(true);
   const [showSaveNotification, setShowSaveNotification] = useState(false);
   const [isAutoSave, setIsAutoSave] = useState(false);
+
+  useEffect(() => {
+    async function loadFiles() {
+      try {
+        const response = await fetch('/api/load');
+        if (!response.ok) throw new Error('Failed to load files');
+        const loadedFiles = await response.json();
+
+        console.log("Loaded Files:", loadedFiles); // Debugging log
+
+        if (!loadedFiles['index.html']) {
+          console.warn("Warning: index.html is missing in API response!");
+        }
+
+        setFiles(loadedFiles);
+      } catch (error) {
+        console.error('Error loading files:', error);
+      }
+    }
+
+    loadFiles();
+
+    const pollInterval = setInterval(async () => {
+      try {
+        const response = await fetch('/api/load');
+        if (!response.ok) throw new Error('Failed to load files');
+        const latestFiles = await response.json();
+
+        console.log("Polling Latest Files:", latestFiles); // Debugging log
+
+        if (!latestFiles['index.html']) {
+          console.warn("Polling Warning: index.html is missing in latest files!");
+        }
+
+        setFiles((prevFiles) => {
+          const hasChanges = Object.entries(latestFiles).some(
+            ([filename, content]) => prevFiles[filename] !== content
+          );
+
+          return hasChanges ? latestFiles : prevFiles;
+        });
+
+      } catch (error) {
+        console.error('Error checking for file changes:', error);
+      }
+    }, 5000);
+
+    return () => clearInterval(pollInterval);
+  }, []);
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -42,20 +88,18 @@ export default function Home() {
         },
         body: JSON.stringify(files),
       });
-      
+
       if (!response.ok) throw new Error('Failed to save files');
-      
+
       setLastSaved(new Date());
       setShowSaveNotification(true);
       renderPreview();
 
-      // Hide notification after 2 seconds
       setTimeout(() => {
         setShowSaveNotification(false);
       }, 2000);
     } catch (error) {
       console.error('Error saving files:', error);
-      // Optionally show an error notification
     }
   }, [files]);
 
@@ -65,8 +109,13 @@ export default function Home() {
       setInputMessage('');
     }
   };
-  
+
   const renderPreview = async () => {
+    if (!files || !files['index.html']) {
+      console.error("Error: index.html is missing from files!", files);
+      return;
+    }
+
     if (previewRef.current) {
       try {
         const iframe = document.createElement('iframe');
@@ -74,16 +123,18 @@ export default function Home() {
         iframe.style.height = '100%';
         iframe.style.border = 'none';
         iframe.style.background = 'transparent';
-        
+
         previewRef.current.innerHTML = '';
         previewRef.current.appendChild(iframe);
-        
-        // Use the files from static/template directory
+
         const baseUrl = '/static/template/';
-        const htmlContent = files['index.html']
-          .replace('href="styles.css"', `href="${baseUrl}styles.css"`)
-          .replace('src="script.js"', `src="${baseUrl}script.js"`);
-        
+
+        let htmlContent = files['index.html']
+          ?.replace('href="styles.css"', `href="${baseUrl}styles.css"`)
+          ?.replace('src="script.js"', `src="${baseUrl}script.js"`) || '';
+
+        console.log("Rendered HTML Content:", htmlContent);
+
         iframe.contentDocument.open();
         iframe.contentDocument.write(htmlContent);
         iframe.contentDocument.close();
@@ -112,11 +163,11 @@ export default function Home() {
   const handleDownload = async () => {
     try {
       const zip = new JSZip();
-      
+
       Object.entries(files).forEach(([filename, content]) => {
         zip.file(filename, content);
       });
-      
+
       const content = await zip.generateAsync({ type: 'blob' });
       const url = window.URL.createObjectURL(content);
       const a = document.createElement('a');
@@ -143,34 +194,6 @@ export default function Home() {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [saveFiles]);
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Tab') {
-      e.preventDefault();
-      const start = e.target.selectionStart;
-      const end = e.target.selectionEnd;
-      const spaces = '  ';
-      const newContent = files[currentFile].substring(0, start) + spaces + files[currentFile].substring(end);
-      setFiles({ ...files, [currentFile]: newContent });
-      setTimeout(() => {
-        e.target.selectionStart = e.target.selectionEnd = start + 2;
-      }, 0);
-    }
-  };
-
-  const compileFiles = () => {
-    const cssBlob = new Blob([files['styles.css']], { type: 'text/css' });
-    const cssUrl = URL.createObjectURL(cssBlob);
-    
-    const jsBlob = new Blob([files['script.js']], { type: 'text/javascript' });
-    const jsUrl = URL.createObjectURL(jsBlob);
-    
-    const compiledHTML = files['index.html']
-      .replace('href="styles.css"', `href="${cssUrl}"`)
-      .replace('src="script.js"', `src="${jsUrl}"`);
-    
-    return compiledHTML;
-  };
-
   return (
     <div className="h-screen w-full bg-slate-900 flex flex-col">
       <Header 
@@ -188,9 +211,8 @@ export default function Home() {
             isNavExpanded={isNavExpanded}
             setIsNavExpanded={setIsNavExpanded}
             onRenderPreview={renderPreview}
-            handleKeyDown={handleKeyDown}
           />
-          
+
           <Preview previewRef={previewRef} />
         </div>
 
@@ -205,3 +227,4 @@ export default function Home() {
     </div>
   );
 }
+
