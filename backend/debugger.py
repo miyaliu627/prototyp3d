@@ -1,5 +1,5 @@
 
-from ticket import Ticket
+from .ticket import Ticket
 import openai
 import requests
 from scrapybara import Scrapybara
