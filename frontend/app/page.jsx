@@ -140,7 +140,7 @@ export default function Home() {
         previewRef.current.innerHTML = '';
         previewRef.current.appendChild(iframe);
 
-        const baseUrl = '/static/template/';
+        const baseUrl = '/static/product/';
 
         let htmlContent = files['index.html']
           ?.replace('href="styles.css"', `href="${baseUrl}styles.css"`)
