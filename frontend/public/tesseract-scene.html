@@ -23,8 +23,6 @@
   <body>
     <div id="fadeOverlay"></div>
     <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/loaders/FontLoader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/geometries/TextGeometry.js"></script>
     <script>
       const scene = new THREE.Scene();
       scene.background = new THREE.Color(0x000000);
@@ -209,34 +207,27 @@
       tesseractGroup.position.set(0, 3.5, 0);
       scene.add(tesseractGroup);
       
-      let textMesh;
-      let instructionMesh; 
-      
-      const fontURL = 'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json';
-      const fontLoader = new THREE.FontLoader();
-      fontLoader.load(fontURL, function (font) {
-      
-        const instructionGeometry = new THREE.TextGeometry('hold W to begin:', {
-          font: font,
-          size: 0.5,
-          height: 0.1,
-          curveSegments: 12,
-          bevelEnabled: true,
-          bevelThickness: 0.03,
-          bevelSize: 0.02,
-          bevelOffset: 0,
-          bevelSegments: 3
-        });
-        instructionGeometry.center();
-        const instructionMaterial = new THREE.MeshStandardMaterial({ 
-          color: 0x8c52ff, 
-          metalness: 0.5, 
-          roughness: 0.2 
-        });
-        instructionMesh = new THREE.Mesh(instructionGeometry, instructionMaterial);
-        instructionMesh.position.set(0, 3.5, 0);
-        scene.add(instructionMesh);
-      });
+      const textCanvas = document.createElement("canvas");
+      textCanvas.width = 512;
+      textCanvas.height = 128;
+      const textCtx = textCanvas.getContext("2d");
+
+      textCtx.fillStyle = "rgba(0, 0, 0, 0)";
+      textCtx.fillRect(0, 0, textCanvas.width, textCanvas.height);
+      textCtx.font = "bold 48px Arial";
+      textCtx.textAlign = "center";
+      textCtx.textBaseline = "middle";
+      textCtx.fillStyle = "#8c52ff";
+      textCtx.fillText("enter the tesseract...", textCanvas.width / 2, textCanvas.height / 2);
+
+      const textTexture = new THREE.CanvasTexture(textCanvas);
+      const textMaterial = new THREE.SpriteMaterial({ map: textTexture });
+
+      const textSprite = new THREE.Sprite(textMaterial);
+      textSprite.scale.set(5, 1.2, 1);
+      textSprite.position.set(0, 3.5, 0);
+
+      scene.add(textSprite);      
       
       const clock = new THREE.Clock();
       let hasRedirected = false;
@@ -258,29 +249,6 @@
       
         tesseractGroup.rotation.x += 0.005;
         tesseractGroup.rotation.y += 0.005;
-      
-        if (textMesh) {
-          const distance = camera.position.distanceTo(tesseractGroup.position);
-          const maxDistance = 12;
-          const minDistance = 4;
-          let factor = 0;
-          if (distance >= maxDistance) {
-            factor = 0;
-          } else if (distance <= minDistance) {
-            factor = 1;
-          } else {
-            factor = 1 - ((distance - minDistance) / (maxDistance - minDistance));
-          }
-          const initialColor = new THREE.Color(0xff00ff);
-          const finalColor = new THREE.Color(0xffffff);
-          const newColor = initialColor.clone().lerp(finalColor, factor);
-          textMesh.material.color.copy(newColor);
-        }
-      
-        if (instructionMesh) {
-          const distance = camera.position.distanceTo(tesseractGroup.position);
-          instructionMesh.visible = distance > 10;
-        }
       
         const fadeOverlay = document.getElementById("fadeOverlay");
         const tesseractCenter = tesseractGroup.position;
