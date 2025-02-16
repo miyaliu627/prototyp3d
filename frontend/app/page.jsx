@@ -29,8 +29,6 @@ export default function Home() {
         if (!response.ok) throw new Error('Failed to load files');
         const loadedFiles = await response.json();
 
-        console.log("Loaded Files:", loadedFiles); // Debugging log
-
         if (!loadedFiles['index.html']) {
           console.warn("Warning: index.html is missing in API response!");
         }
@@ -48,8 +46,6 @@ export default function Home() {
         const response = await fetch('/api/load');
         if (!response.ok) throw new Error('Failed to load files');
         const latestFiles = await response.json();
-
-        console.log("Polling Latest Files:", latestFiles); // Debugging log
 
         if (!latestFiles['index.html']) {
           console.warn("Polling Warning: index.html is missing in latest files!");
@@ -132,8 +128,6 @@ export default function Home() {
         let htmlContent = files['index.html']
           ?.replace('href="styles.css"', `href="${baseUrl}styles.css"`)
           ?.replace('src="script.js"', `src="${baseUrl}script.js"`) || '';
-
-        console.log("Rendered HTML Content:", htmlContent);
 
         iframe.contentDocument.open();
         iframe.contentDocument.write(htmlContent);
