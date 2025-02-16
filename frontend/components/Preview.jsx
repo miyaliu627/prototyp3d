@@ -2,7 +2,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { ArrowsPointingOutIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { Monitor } from "lucide-react";
+import { Monitor, Play } from "lucide-react";
 
 export default function Preview({ previewRef }) {
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -43,9 +43,13 @@ export default function Preview({ previewRef }) {
       </div>
       <div 
         ref={previewRef}
-        className="flex-1 bg-gradient-to-br from-slate-900/90 to-slate-900/70 rounded-lg"
+        className="flex-1 bg-gradient-to-br from-slate-900/90 to-slate-900/70 rounded-lg flex items-center justify-center"
       >
-        <p className="text-slate-500 flex items-center justify-center h-full">Click Run to preview</p>
+        <p className="text-slate-500 flex items-center gap-2 text-sm">
+          Hit 
+          <Play size={16} className="text-green-400" /> 
+          or <span className="font-medium text-white">⌘ ↵</span> to preview
+        </p>
       </div>
     </div>
   );

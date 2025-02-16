@@ -23,7 +23,7 @@ export default function Header({ onDownload, projectName, setProjectName }) {
 
   return (
     <header className="bg-gradient-to-b from-slate-800/80 to-slate-900/0 p-2 relative">
-      <div className="max-w-[95%] mx-auto flex justify-between items-center">
+      <div className="max-w-[99%] mx-auto flex justify-between items-center">
         <Image
           src="/prototyp3d.png"
           alt="Prototyp3D Logo"
