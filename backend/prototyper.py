@@ -14,35 +14,32 @@ class Prototyper:
         self.user_prompt = user_prompt
         self.tickets = []
         self.repo_summary = None
-        self.repo_path = os.path.join("static", self.name)
+        self.repo_path = os.path.join("../frontend/static/product")
         self.llm_client = openai.Client()
         self.scrapybara_client = scrapybara.Scrapybara()
 
     def setup_repo(self):
         """
-        Checks if self.repo_path exists. If not, copies everything from static/template/
+        copies everything from static/template/
         into static/ and names it either self.name or a random UUID.
         """
-        if self.repo_path and os.path.exists(self.repo_path):
-            print(f"[INFO] Repository '{self.repo_path}' already exists.")
-            return
-
-        template_path = "static/template"
+        template_path = "../frontend/static/template"
 
         if not os.path.exists(template_path):
-            print(f"[ERROR] Template folder '{template_path}' not found. Aborting.")
-            return
+            raise Exception(f"Template folder '{template_path}' not found. Aborting.")
 
         try:
-            # Copy the entire template folder to the new destination
+            destination = "../frontend/static/product"
+            if os.path.exists(destination):
+                shutil.rmtree(destination)
             shutil.copytree(template_path, self.repo_path)
             print(f"[SUCCESS] Created repository at '{self.repo_path}' from template.")
 
         except Exception as e:
-            print(f"[ERROR] Failed to create repository: {e}")
+            raise Exception(f"Failed to create repository: {e}")
 
     def create_tickets(self):
-        prompt = f"""You are an experienced software project manager and technical lead, specializing in breaking down complex user requirements into detailed, structured Jira tickets based on the instructions below. Your expertise includes defining clear, actionable, modular tasks.
+        prompt = f"""You are an experienced software project manager and technical lead, specializing in breaking down complex user requirements into 5 detailed, structured Jira tickets based on the instructions below. Your expertise includes defining clear, actionable, modular tasks.
 
     ***USER INPUT STARTS***
     {self.user_prompt}
@@ -53,11 +50,11 @@ class Prototyper:
     ***CODEBASE SUMMARY ENDS***
 
     ***INSTRUCTION STARTS***
-    From the current codebase, transform the user's natural language description of a virtual environment into a set of well-defined Jira-style tickets to create a web-renderable 3d prototype. Each ticket must be actionable, detailed, and structured for clear execution.
+    From the current codebase, transform the user's natural language description of a virtual environment into a set of well-scoped Jira-style tickets to create a web-renderable 3d prototype. Each ticket must be actionable, detailed, and structured for clear execution. The number of tickets should be dependent on the complexity of the user goal.
 
     First, analyze the provided description to break it down into individual tasks or features.
 
-    Then, generate the subsequent jira tickets. Each ticket should include:
+    Then, generate a set of subsequent jira tickets. Each ticket should include:
         - Summary: A concise title summarizing the task.
         - Description: A detailed explanation of what needs to be done.
 

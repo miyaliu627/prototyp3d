@@ -8,7 +8,7 @@ client = openai.Client()
 def chatcompletion(user_prompt, system_prompt=""):
     try:
         response = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="o3-mini",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
@@ -44,7 +44,7 @@ def chatcompletion_stream(user_prompt, system_prompt=""):
     """
     try:
         response = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="o3-mini",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},

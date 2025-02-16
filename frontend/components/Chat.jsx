@@ -6,6 +6,7 @@ const Chat = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [projectName, setProjectName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [hasCreatedPrototype, setHasCreatedPrototype] = useState(false);
   const chatContainerRef = useRef(null);
 
   const DataDisplay = ({ data, title }) => {
@@ -44,7 +45,8 @@ const Chat = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5001/prototype', {  // Updated URL
+      const endpoint = hasCreatedPrototype ? 'iterate' : 'create';
+      const response = await fetch(`http://localhost:5001/prototype/${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -68,6 +70,10 @@ const Chat = () => {
           content: `Error: ${data.error}`
         }]);
         return;
+      }
+
+      if (!hasCreatedPrototype) {
+        setHasCreatedPrototype(true);
       }
 
       // Add responses for each ticket

@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    const templateDir = join(process.cwd(), 'static/template/');
+    const templateDir = join(process.cwd(), 'static/product/');
 
     const fs = require('fs');
     fs.accessSync(templateDir, fs.constants.F_OK);
