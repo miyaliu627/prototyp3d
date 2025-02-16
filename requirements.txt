@@ -38,6 +38,7 @@ poetry-core==2.1.0
 pycparser==2.22
 pydantic==2.10.6
 pydantic_core==2.27.2
+python=3.12.7
 pyee==12.1.1
 pyproject_hooks==1.2.0
 RapidFuzz==3.12.1

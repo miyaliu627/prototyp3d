@@ -68,7 +68,7 @@ class Ticket:
             print("No valid files to process.")
             return {"internal_dialogue": "No valid files were found.", "updated_files": {}}
 
-
+        joined_files = '\n'.join(files_formatted)
         prompt = f"""You are an expert software engineer specializing in modifying and generating Three.js code.
 You will modify the given files based on a Jira ticket.
 
@@ -80,7 +80,7 @@ You will modify the given files based on a Jira ticket.
 {repo_summary}
 
 **FILES TO MODIFY**
-{'\n'.join(files_formatted)}
+{joined_files}
 
 ### INSTRUCTIONS:
 1. Modify the provided files to satisfy the requirements of the Jira ticket.
