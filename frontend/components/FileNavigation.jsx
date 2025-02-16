@@ -1,6 +1,7 @@
+// FileNavigation.jsx
 'use client';
 import React from 'react';
-import { ChevronDown, ChevronRight, File, Folder } from 'lucide-react';
+import { ChevronDown, ChevronRight, File, Folder, Circle } from 'lucide-react';
 
 export default function FileNavigation({ 
   files, 
@@ -8,8 +9,17 @@ export default function FileNavigation({
   setCurrentFile, 
   isNavExpanded, 
   setIsNavExpanded,
-  projectName
+  projectName,
+  modifiedFiles = new Set(),
+  onFileSelect
 }) {
+  const handleFileSelect = (filename) => {
+    setCurrentFile(filename);
+    if (onFileSelect) {
+      onFileSelect(filename);
+    }
+  };
+
   return (
     <div className="mb-2">
       <button
@@ -26,15 +36,20 @@ export default function FileNavigation({
           {Object.keys(files).map(filename => (
             <button
               key={filename}
-              onClick={() => setCurrentFile(filename)}
-              className={`flex items-center gap-2 text-xs w-full px-2 py-1 rounded-md ${
+              onClick={() => handleFileSelect(filename)}
+              className={`flex items-center justify-between text-xs w-full px-2 py-1 rounded-md ${
                 currentFile === filename
                   ? 'bg-purple-500/20 text-purple-400'
                   : 'text-slate-400 hover:text-slate-300'
               }`}
             >
-              <File size={14} />
-              {filename}
+              <div className="flex items-center gap-2">
+                <File size={14} />
+                <span>{filename}</span>
+              </div>
+              {modifiedFiles.has(filename) && (
+                <Circle size={6} className="fill-purple-400 text-purple-400" />
+              )}
             </button>
           ))}
         </div>
@@ -42,4 +57,3 @@ export default function FileNavigation({
     </div>
   );
 }
-
