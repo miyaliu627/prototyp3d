@@ -17,7 +17,7 @@ prototyp3d allows users—including developers, designers, educators, and entrep
 - **Natural Language Processing / Autonomous Code Generation**: Utilizes OpenAI's **o3-mini** to interpret user descriptions and create structured development tasks.
 - **Iterative Debugging & Testing**: The **Scrapybara** agent interacts with the environment and performs visual inspections which are later fed into the feedback debugging loop.
 - **Optimized Rendering Pipeline**: Supports **Three.js, Babylon.js, WebXR**, and other 3D/VR frameworks.
-- **Modern Frontend**: A sleek UI built with **React, JavaScript, HTML, and CSS** for a seamless experience.
+- **Modern Frontend**: A sleek UI built with **React, HTML, and CSS, and Three.js**.
 
 ## Accomplishments
 - Built a full AI-powered 3D/VR prototyping pipeline capable of generating functional applications.
@@ -31,11 +31,9 @@ prototyp3d allows users—including developers, designers, educators, and entrep
 
 ## Built With
 - **AI**: OpenAI o3-mini, Scrapybara, Anthropic Claude
-- **Frontend**: React, JavaScript, HTML, CSS
+- **Frontend**: React, JavaScript (Three.js), HTML, CSS
 - **Backend**: Python, Flask
 - **Infrastructure**: Ubuntu, Bash, ngrok
 
 ## License
 This project is licensed under the **MIT License**.
-
-
